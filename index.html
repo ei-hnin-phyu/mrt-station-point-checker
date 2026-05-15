@@ -537,11 +537,12 @@
       <select id="taEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
         <input type="color" id="taColor" value="#8B4513" title="Turn around color">
+        <button class="btn-set" style="flex:1" onclick="drawTurnAround()">+ Add</button>
       </div>
-      <button class="btn-set" onclick="drawTurnAround()">Draw Turn Around</button>
+      <div id="taList" style="display:flex;flex-direction:column;gap:4px"></div>
       <div class="btn-row">
         <button class="btn-export" onclick="exportTurnAroundJSON()">⬇ Export</button>
-        <button class="btn-clr-route" onclick="clearTurnAround()">Clear</button>
+        <button class="btn-clr-route" onclick="clearTurnAround()">Clear All</button>
       </div>
     </div>
 
@@ -1630,6 +1631,7 @@
     document.getElementById('busLayer').innerHTML        = '';
     document.getElementById('shuttleLayer').innerHTML    = '';
     document.getElementById('turnAroundLayer').innerHTML = '';
+    document.getElementById('taList').innerHTML          = '';
     document.getElementById('busTooltip').style.display = 'none';
     busRouteData     = null;
     shuttleRouteData = null;
@@ -1863,6 +1865,7 @@
     dot.setAttribute('pointer-events', 'none');
     layer.appendChild(dot);
 
+    const idx = turnAroundData.length;
     turnAroundData.push({
       from:  A.id,
       to:    B.id,
@@ -1870,12 +1873,73 @@
       point: { x: Math.round(mx * 100) / 100, y: Math.round(my * 100) / 100 }
     });
 
+    // List item
+    const taList = document.getElementById('taList');
+    const item = document.createElement('div');
+    item.id = `ta-item-${idx}`;
+    item.style.cssText = 'display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 7px;font-size:0.72rem;color:#94a3b8';
+    const colorDot = document.createElement('span');
+    colorDot.style.cssText = `width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0`;
+    const lbl = document.createElement('span');
+    lbl.style.flex = '1';
+    lbl.textContent = `${A.id} – ${B.id}`;
+    const rmBtn = document.createElement('button');
+    rmBtn.textContent = '✕';
+    rmBtn.style.cssText = 'background:none;border:none;color:#475569;cursor:pointer;font-size:0.7rem;padding:0 2px;line-height:1';
+    rmBtn.title = 'Remove';
+    rmBtn.onmouseover = () => rmBtn.style.color = '#f87171';
+    rmBtn.onmouseout  = () => rmBtn.style.color = '#475569';
+    rmBtn.onclick = () => removeTurnAround(idx);
+    item.appendChild(colorDot); item.appendChild(lbl); item.appendChild(rmBtn);
+    taList.appendChild(item);
+
+    // Reset selects
+    document.getElementById('taStart').value = '';
+    document.getElementById('taEnd').value   = '';
+
     setStatus(`Turn around ${A.id}–${B.id} added (${turnAroundData.length} total)`, 'ok');
+  }
+
+  function removeTurnAround(idx) {
+    turnAroundData[idx] = null;
+    const item = document.getElementById(`ta-item-${idx}`);
+    if (item) item.remove();
+    // Remove the corresponding SVG elements by rebuilding the layer
+    const layer = document.getElementById('turnAroundLayer');
+    layer.innerHTML = '';
+    const ns = 'http://www.w3.org/2000/svg';
+    turnAroundData.forEach(d => {
+      if (!d) return;
+      const A = stations.find(s => s.id === d.from);
+      const B = stations.find(s => s.id === d.to);
+      if (!A || !B) return;
+      const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+      const angle = Math.atan2(B.y - A.y, B.x - A.x) * 180 / Math.PI;
+      const halfW = 12, thick = 5;
+      const block = document.createElementNS(ns, 'rect');
+      block.setAttribute('x',      (mx - halfW).toFixed(1));
+      block.setAttribute('y',      (my - thick / 2).toFixed(1));
+      block.setAttribute('width',  (halfW * 2).toFixed(1));
+      block.setAttribute('height', thick.toFixed(1));
+      block.setAttribute('rx', Math.min(2, thick / 2).toFixed(1));
+      block.setAttribute('fill', d.color);
+      block.setAttribute('transform', `rotate(${(angle + 90).toFixed(2)},${mx.toFixed(1)},${my.toFixed(1)})`);
+      block.style.pointerEvents = 'all';
+      block.style.cursor = 'pointer';
+      block.addEventListener('click', e => { e.stopPropagation(); showBusTooltip(e, { id: 'TA', name: `Turn Around (${A.id} – ${B.id})` }); });
+      layer.appendChild(block);
+      const dot = document.createElementNS(ns, 'circle');
+      dot.setAttribute('cx', mx.toFixed(1)); dot.setAttribute('cy', my.toFixed(1));
+      dot.setAttribute('r', '2'); dot.setAttribute('fill', '#fff');
+      dot.setAttribute('pointer-events', 'none');
+      layer.appendChild(dot);
+    });
   }
 
   function clearTurnAround() {
     document.getElementById('turnAroundLayer').innerHTML = '';
     document.getElementById('busTooltip').style.display = 'none';
+    document.getElementById('taList').innerHTML = '';
     turnAroundData = [];
   }
 
