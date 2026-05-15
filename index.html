@@ -203,7 +203,7 @@
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 12px 48px rgba(0,0,0,0.6);
-      cursor: crosshair;
+      cursor: grab;
     }
     .map-wrapper img {
       display: block;
@@ -354,6 +354,80 @@
     .ol-chip.visible .ol-eye { opacity: 1; color: #38bdf8; }
 
     .btn-download { background: linear-gradient(135deg,#16a34a,#15803d); color:#fff; box-shadow:0 2px 8px rgba(22,163,74,.25); }
+
+    /* ── Legend panel ── */
+    .legend-panel {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      z-index: 20;
+      background: rgba(10,10,26,0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      min-width: 148px;
+      overflow: hidden;
+    }
+    .legend-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px 7px 12px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      gap: 8px;
+    }
+    .legend-header:hover { background: rgba(255,255,255,0.04); }
+    .legend-title {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #475569;
+      white-space: nowrap;
+    }
+    .legend-toggle-btn {
+      font-size: 0.55rem;
+      color: #334155;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .legend-panel.collapsed .legend-toggle-btn { transform: rotate(0deg); }
+    .legend-panel:not(.collapsed) .legend-toggle-btn { transform: rotate(180deg); }
+    .legend-body {
+      padding: 8px 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      transition: max-height 0.25s cubic-bezier(.4,0,.2,1), padding 0.25s;
+      overflow: hidden;
+      max-height: 400px;
+    }
+    .legend-panel.collapsed .legend-body { max-height: 0; padding-top: 0; padding-bottom: 0; }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+    .legend-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .legend-divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin: 1px 0;
+    }
   </style>
 </head>
 <body>
@@ -375,31 +449,12 @@
       <div id="otherLinesToggleList" class="ol-grid"></div>
     </div>
 
-    <!-- Line & Station -->
+    <!-- Line Selection -->
     <div class="sidebar-section">
-      <div class="section-label">Line & Station</div>
-      <div class="btn-row" style="gap:6px">
-        <select id="lineSelect" onchange="loadLine()" style="flex:1;width:auto">
-          <option value="">— Select line —</option>
-        </select>
-      </div>
-      <div class="btn-row">
-        <button class="btn-nav" onclick="stepStation(-1)">◀</button>
-        <select id="stationSelect" style="flex:1;width:auto"><option value="">— Station —</option></select>
-        <button class="btn-nav" onclick="stepStation(1)">▶</button>
-      </div>
-      <div class="btn-row">
-        <button class="btn-set" id="btnSet" disabled onclick="applyClick()">✔ Set</button>
-        <label class="chk-label">
-          <input type="checkbox" id="chkShowAll" onchange="toggleShowAll()">
-          Show all
-        </label>
-      </div>
-      <div class="btn-row">
-        <button class="btn-export" onclick="exportJSON()">⬇ Export JSON</button>
-        <button class="btn-load" onclick="document.getElementById('fileInput').click()">📂 Load</button>
-        <input type="file" id="fileInput" accept=".json" style="display:none">
-      </div>
+      <div class="section-label">Line</div>
+      <select id="lineSelect" onchange="loadLine()">
+        <option value="">— Select line —</option>
+      </select>
     </div>
 
     <!-- Affected Station - Delay -->
@@ -490,6 +545,34 @@
       </div>
     </div>
 
+    <!-- Point Changer -->
+    <div class="sidebar-section">
+      <div class="section-label">Point Changer</div>
+      <div class="btn-row">
+        <button class="btn-nav" onclick="stepStation(-1)">◀</button>
+        <select id="stationSelect" style="flex:1;width:auto"><option value="">— Station —</option></select>
+        <button class="btn-nav" onclick="stepStation(1)">▶</button>
+      </div>
+      <div class="btn-row">
+        <label class="chk-label">
+          <input type="checkbox" id="chkMovePoint" onchange="toggleMovePoint()">
+          Move Point
+        </label>
+        <label class="chk-label">
+          <input type="checkbox" id="chkShowAll" onchange="toggleShowAll()">
+          Show all
+        </label>
+      </div>
+      <div class="btn-row">
+        <button class="btn-set" id="btnSet" disabled onclick="applyClick()">✔ Set</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-export" onclick="exportJSON()">⬇ Export JSON</button>
+        <button class="btn-load" onclick="document.getElementById('fileInput').click()">📂 Load</button>
+        <input type="file" id="fileInput" accept=".json" style="display:none">
+      </div>
+    </div>
+
     <!-- Route -->
     <div class="sidebar-section">
       <div class="section-label">Manual Route</div>
@@ -525,6 +608,102 @@
       <g id="markerLayer"></g>
     </svg>
     <div id="busTooltip"></div>
+
+    <!-- ── Legend ── -->
+    <div class="legend-panel collapsed" id="legendPanel">
+      <div class="legend-header" onclick="toggleLegend()">
+        <span class="legend-title">Legend</span>
+        <span class="legend-toggle-btn">▲</span>
+      </div>
+      <div class="legend-body">
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <polygon points="0,-6 -6,3.6 6,3.6" fill="#FFCC00" stroke="#000" stroke-width="0.8"/>
+              <circle cx="0" cy="2.1" r="0.8" fill="#000"/>
+              <line x1="0" y1="-3.3" x2="0" y2="0.6" stroke="#000" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span>Delay</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <line x1="-5" y1="-5" x2="5" y2="5" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="5" y1="-5" x2="-5" y2="5" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span>No Service</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -16 16 20" width="22" height="22">
+              <polygon points="-3.5,-6 3.5,-6 0,0" fill="#E53935"/>
+              <circle cx="0" cy="-10" r="5" fill="#E53935"/>
+              <circle cx="0" cy="-10" r="1.9" fill="#fff"/>
+            </svg>
+          </span>
+          <span>Fault Location</span>
+        </div>
+        <hr class="legend-divider">
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke="#8B00FF" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3,2"/>
+              <circle cx="7" cy="0" r="2" fill="#8B00FF"/>
+            </svg>
+          </span>
+          <span>Bus Bridge</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke="#FF69B4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3,2"/>
+              <circle cx="7" cy="0" r="2" fill="#FF69B4"/>
+            </svg>
+          </span>
+          <span>Shuttle Train</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke="#8B4513" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="5" y1="-4" x2="7" y2="0" stroke="#8B4513" stroke-width="2" stroke-linecap="round"/>
+              <line x1="5" y1="4" x2="7" y2="0" stroke="#8B4513" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span>Turn Around</span>
+        </div>
+        <hr class="legend-divider">
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <line x1="-5" y1="-5" x2="5" y2="5" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+              <line x1="5" y1="-5" x2="-5" y2="5" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span>Station Point</span>
+        </div>
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <circle cx="0" cy="0" r="5" fill="#FF6B00" stroke="#1a1a1a" stroke-width="2"/>
+            </svg>
+          </span>
+          <span>Clicked Point</span>
+        </div>
+        <hr class="legend-divider">
+        <div class="legend-row">
+          <span class="legend-icon">
+            <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="7" cy="0" r="2" fill="#ff6b6b"/>
+            </svg>
+          </span>
+          <span>Manual Route</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="info-panel">
@@ -537,7 +716,7 @@
       <span class="val" id="infoStored">—</span>
     </div>
     <div class="info-row">
-      <span class="lbl">Clicked <span style="color:#00bfff">●</span></span>
+      <span class="lbl">Clicked <span style="color:#FF6B00">●</span></span>
       <span class="val" id="infoClicked">— (click map)</span>
     </div>
   </div>
@@ -547,6 +726,11 @@
 </div>
 
 <script>
+  // ── Legend toggle ─────────────────────────────────────
+  function toggleLegend() {
+    document.getElementById('legendPanel').classList.toggle('collapsed');
+  }
+
   // ── Sidebar toggle ───────────────────────────────────
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -617,8 +801,8 @@
     const c = document.createElementNS(SVGNS, 'circle');
     c.setAttribute('cx', x); c.setAttribute('cy', y);
     c.setAttribute('r', '5');
-    c.setAttribute('fill', '#00bfff');
-    c.setAttribute('stroke', '#fff');
+    c.setAttribute('fill', '#FF6B00');
+    c.setAttribute('stroke', '#1a1a1a');
     c.setAttribute('stroke-width', '2');
     c.setAttribute('pointer-events', 'none');
     return c;
@@ -959,6 +1143,8 @@
     mapImg.src = currentLine.image;
     const data = STATION_DATA[id] || [];
     initStations(data, `Loaded ${id} — ${data.length} stations`);
+    document.getElementById('chkMovePoint').checked = false;
+    mapWrapper.style.cursor = 'grab';
     clearRoute();
     clearDelayMarkers();
     clearNoServiceMarkers();
@@ -1068,9 +1254,22 @@
     if (stationSelect.value !== '') selectStation(Number(stationSelect.value));
   });
 
+  // ── Move Point toggle ─────────────────────────────────
+  function toggleMovePoint() {
+    const on = document.getElementById('chkMovePoint').checked;
+    mapWrapper.style.cursor = on ? 'crosshair' : 'grab';
+    if (!on) {
+      pendingClick = null;
+      if (svgClickDot) { svgClickDot.remove(); svgClickDot = null; }
+      infoClicked.textContent = '— (click map)';
+      btnSet.disabled = true;
+    }
+  }
+
   // ── Map click ─────────────────────────────────────────
   mapWrapper.addEventListener('click', e => {
     document.getElementById('busTooltip').style.display = 'none';
+    if (!document.getElementById('chkMovePoint').checked) return;
     if (!currentLine) return;
     if (currentIdx === -1) return;
     const rect = mapImg.getBoundingClientRect();
