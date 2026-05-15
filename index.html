@@ -683,6 +683,8 @@
         <div class="legend-row">
           <span class="legend-icon">
             <svg viewBox="-8 -8 16 16" width="22" height="22">
+              <line x1="-5" y1="-5" x2="5" y2="5" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/>
+              <line x1="5" y1="-5" x2="-5" y2="5" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/>
               <line x1="-5" y1="-5" x2="5" y2="5" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
               <line x1="5" y1="-5" x2="-5" y2="5" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
             </svg>
@@ -732,8 +734,8 @@
         <div class="legend-row">
           <span class="legend-icon">
             <svg viewBox="-8 -8 16 16" width="22" height="22">
-              <line x1="-5" y1="-5" x2="5" y2="5" stroke="#000" stroke-width="2" stroke-linecap="round"/>
-              <line x1="5" y1="-5" x2="-5" y2="5" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+              <circle r="5" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
+              <polyline points="-2.2,0 -0.4,2 2.5,-2" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
             </svg>
           </span>
           <span>Station Point</span>
@@ -1019,6 +1021,17 @@
       g.setAttribute('transform', `translate(${s.x},${s.y})`);
       g.setAttribute('pointer-events', 'none');
       const sz = 5;
+      // White border layer (drawn first, thicker)
+      [[-sz,-sz,sz,sz],[sz,-sz,-sz,sz]].forEach(([x1,y1,x2,y2]) => {
+        const ln = document.createElementNS(SVGNS, 'line');
+        ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
+        ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
+        ln.setAttribute('stroke','#fff');
+        ln.setAttribute('stroke-width','4.5');
+        ln.setAttribute('stroke-linecap','round');
+        g.appendChild(ln);
+      });
+      // Black X on top
       [[-sz,-sz,sz,sz],[sz,-sz,-sz,sz]].forEach(([x1,y1,x2,y2]) => {
         const ln = document.createElementNS(SVGNS, 'line');
         ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
@@ -1492,8 +1505,24 @@
   function createAllMarkers() {
     removeAllMarkers();
     stations.forEach((s, i) => {
-      const g = createSvgCross(s.x, s.y);
+      const g = document.createElementNS(SVGNS, 'g');
+      g.setAttribute('transform', `translate(${s.x},${s.y})`);
+      g.setAttribute('pointer-events', 'none');
       g.id = `stnmkr-${i}`;
+      const circle = document.createElementNS(SVGNS, 'circle');
+      circle.setAttribute('r', '5');
+      circle.setAttribute('fill', '#fff');
+      circle.setAttribute('stroke', '#16a34a');
+      circle.setAttribute('stroke-width', '1.5');
+      g.appendChild(circle);
+      const tick = document.createElementNS(SVGNS, 'polyline');
+      tick.setAttribute('points', '-2.2,0 -0.4,2 2.5,-2');
+      tick.setAttribute('stroke', '#16a34a');
+      tick.setAttribute('stroke-width', '1.5');
+      tick.setAttribute('stroke-linecap', 'round');
+      tick.setAttribute('stroke-linejoin', 'round');
+      tick.setAttribute('fill', 'none');
+      g.appendChild(tick);
       markerLayer.appendChild(g);
     });
   }
