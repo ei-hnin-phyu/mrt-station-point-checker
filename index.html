@@ -195,15 +195,28 @@
     input[type="number"]:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
 
     /* ── Map ── */
-    .map-wrapper {
+    .map-outer {
       position: relative;
       width: 100%;
       max-width: 1200px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .map-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 0;
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 12px 48px rgba(0,0,0,0.6);
       cursor: grab;
+    }
+    .map-canvas {
+      position: relative;
+      transform-origin: 0 0;
+      will-change: transform;
     }
     .map-wrapper img {
       display: block;
@@ -212,6 +225,31 @@
       user-select: none;
       pointer-events: none;
     }
+    /* ── Zoom controls ── */
+    .zoom-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: #94a3b8;
+      font-size: 1rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .zoom-btn:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; border-color: rgba(255,255,255,0.2); transform: none; box-shadow: none; filter: none; }
+    .zoom-btn:active { background: rgba(255,255,255,0.18); transform: none; }
     #lineOverlayContainer {
       position: absolute;
       top: 0; left: 0;
@@ -503,7 +541,13 @@
           Right
         </label>
       </div>
-      <button class="btn-set" onclick="generateBusPoints()">Draw Route</button>
+      <div class="btn-row">
+        <button class="btn-set" style="flex:1" onclick="generateBusPoints()">Draw Route</button>
+        <label class="chk-label">
+          <input type="checkbox" id="chkBusIconOnRoute" onchange="generateBusPoints()">
+          On Route
+        </label>
+      </div>
       <div class="btn-row">
         <button class="btn-export" onclick="exportBusJSON()">⬇ Export Bus</button>
         <button class="btn-clr-route" onclick="clearBusPoints()">Clear Bus</button>
@@ -516,14 +560,20 @@
       <select id="shuttleStart"><option value="">Select Start Station</option></select>
       <select id="shuttleEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
-        <input type="color" id="shuttleColor" value="#FF69B4" title="Shuttle color">
+        <input type="color" id="shuttleColor" value="#FF1493" title="Shuttle color">
         <input type="number" id="shuttleOffset" value="20" min="1" max="200" style="width:52px">
         <label class="chk-label">
           <input type="checkbox" id="shuttleSideRight">
           Right
         </label>
       </div>
-      <button class="btn-set" onclick="drawShuttleRoute()">Draw Shuttle</button>
+      <div class="btn-row">
+        <button class="btn-set" style="flex:1" onclick="drawShuttleRoute()">Draw Shuttle</button>
+        <label class="chk-label">
+          <input type="checkbox" id="chkShuttleIconOnRoute" onchange="drawShuttleRoute()">
+          On Route
+        </label>
+      </div>
       <div class="btn-row">
         <button class="btn-export" onclick="exportShuttleJSON()">⬇ Export Shuttle</button>
         <button class="btn-clr-route" onclick="clearShuttleRoute()">Clear</button>
@@ -593,7 +643,9 @@
 <div class="main-area">
   <h1>MRT Station Point Checker</h1>
 
+  <div class="map-outer">
   <div class="map-wrapper" id="mapWrapper">
+  <div class="map-canvas" id="mapCanvas">
     <img id="mapImg" src="images/lta-rail-map.png" draggable="false" alt="Line map">
     <div id="lineOverlayContainer"></div>
     <svg id="routeSvg" viewBox="0 0 985 735" preserveAspectRatio="none"
@@ -609,6 +661,7 @@
       <g id="markerLayer"></g>
     </svg>
     <div id="busTooltip"></div>
+  </div><!-- end map-canvas -->
 
     <!-- ── Legend ── -->
     <div class="legend-panel collapsed" id="legendPanel">
@@ -659,8 +712,8 @@
         <div class="legend-row">
           <span class="legend-icon">
             <svg viewBox="-8 -8 16 16" width="22" height="22">
-              <line x1="-7" y1="0" x2="7" y2="0" stroke="#FF69B4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3,2"/>
-              <circle cx="7" cy="0" r="2" fill="#FF69B4"/>
+              <line x1="-7" y1="0" x2="7" y2="0" stroke="#FF1493" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3,4"/>
+              <circle cx="7" cy="0" r="2" fill="#FF1493"/>
             </svg>
           </span>
           <span>Shuttle Train</span>
@@ -706,6 +759,15 @@
       </div>
     </div>
   </div>
+
+  <!-- zoom controls -->
+  <div class="zoom-controls">
+    <button class="zoom-btn" onclick="zoomIn()" title="Zoom in">+</button>
+    <button class="zoom-btn" onclick="zoomOut()" title="Zoom out">−</button>
+    <button class="zoom-btn" onclick="zoomHome()" title="Reset zoom" style="font-size:0.7rem">⌂</button>
+  </div>
+
+  </div><!-- end map-outer -->
 
   <div class="info-panel">
     <div class="info-row">
@@ -775,6 +837,55 @@
   const infoClicked   = document.getElementById('infoClicked');
   const progressBar   = document.getElementById('progressBar');
   const statusBar     = document.getElementById('statusBar');
+  const mapCanvas     = document.getElementById('mapCanvas');
+
+  // ── Zoom / Pan ────────────────────────────────────────
+  let mapScale = 1, mapTx = 0, mapTy = 0;
+  let isPanning = false, panStartX = 0, panStartY = 0, panOriginTx = 0, panOriginTy = 0;
+  const ZOOM_STEP = 0.2, ZOOM_MIN = 0.5, ZOOM_MAX = 5;
+
+  function applyMapTransform() {
+    mapCanvas.style.transform = `translate(${mapTx}px, ${mapTy}px) scale(${mapScale})`;
+  }
+  function zoomAt(cx, cy, newScale) {
+    newScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, newScale));
+    const wRect = mapWrapper.getBoundingClientRect();
+    const lx = cx - wRect.left, ly = cy - wRect.top;
+    mapTx = lx - (lx - mapTx) * (newScale / mapScale);
+    mapTy = ly - (ly - mapTy) * (newScale / mapScale);
+    mapScale = newScale;
+    applyMapTransform();
+  }
+  function zoomIn()   { const r = mapWrapper.getBoundingClientRect(); zoomAt(r.left + r.width/2, r.top + r.height/2, mapScale + ZOOM_STEP); }
+  function zoomOut()  { const r = mapWrapper.getBoundingClientRect(); zoomAt(r.left + r.width/2, r.top + r.height/2, mapScale - ZOOM_STEP); }
+  function zoomHome() { mapScale = 1; mapTx = 0; mapTy = 0; applyMapTransform(); }
+
+  mapWrapper.addEventListener('wheel', e => {
+    e.preventDefault();
+    zoomAt(e.clientX, e.clientY, mapScale + (e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
+  }, { passive: false });
+  mapWrapper.addEventListener('mousedown', e => {
+    const movePoint = document.getElementById('chkMovePoint').checked;
+    if (e.button === 1 || e.button === 2 || (e.button === 0 && !movePoint)) {
+      isPanning = true;
+      panStartX = e.clientX; panStartY = e.clientY;
+      panOriginTx = mapTx; panOriginTy = mapTy;
+      mapWrapper.style.cursor = 'grabbing';
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isPanning) return;
+    mapTx = panOriginTx + (e.clientX - panStartX);
+    mapTy = panOriginTy + (e.clientY - panStartY);
+    applyMapTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    if (!isPanning) return;
+    isPanning = false;
+    mapWrapper.style.cursor = document.getElementById('chkMovePoint').checked ? 'crosshair' : 'grab';
+  });
+  mapWrapper.addEventListener('contextmenu', e => e.preventDefault());
 
   // ── SVG marker helpers ────────────────────────────────
   const SVGNS = 'http://www.w3.org/2000/svg';
@@ -1544,18 +1655,20 @@
       }))
     };
 
-    // Bus icon between bridging route and original line (offset toward original)
+    const onRoute = document.getElementById('chkBusIconOnRoute').checked;
     const iconDist = offsetDist * 0.5;
     for (let i = 0; i < stationOffsets.length - 1; i++) {
       const a = stationOffsets[i], b = stationOffsets[i + 1];
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-      const dx = b.x - a.x, dy = b.y - a.y;
-      const len = Math.sqrt(dx*dx + dy*dy) || 1;
-      // Offset toward original line (opposite direction of bus route offset)
-      const nx = rightSide ? -dy / len :  dy / len;
-      const ny = rightSide ?  dx / len : -dx / len;
-      const px = mx + nx * iconDist;
-      const py = my + ny * iconDist;
+      let px = mx, py = my;
+      if (!onRoute) {
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const len = Math.sqrt(dx*dx + dy*dy) || 1;
+        const nx = rightSide ? -dy / len :  dy / len;
+        const ny = rightSide ?  dx / len : -dx / len;
+        px = mx + nx * iconDist;
+        py = my + ny * iconDist;
+      }
       layer.appendChild(makeBusIcon(px, py));
     }
 
@@ -1567,6 +1680,7 @@
     const g = document.createElementNS(ns, 'g');
     g.setAttribute('transform', `translate(${mx},${my})`);
     g.setAttribute('pointer-events', 'none');
+    g.classList.add('bus-icon');
     const W = 10, H = 8, RX = 1.5;
     const x0 = -W/2, y0 = -H - 2;
     // Bus body
@@ -1676,7 +1790,7 @@
 
     const d = 'M' + offsetCurve.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join('L');
     const pathEl = makeSvgPath(d, color, '3');
-    pathEl.setAttribute('stroke-dasharray', '8,5');
+    pathEl.setAttribute('stroke-dasharray', '3,4');
     layer.appendChild(pathEl);
 
     // Circles at each station's offset position
@@ -1718,17 +1832,20 @@
       }))
     };
 
-    // Train icon between shuttle route and original line
+    const shuttleOnRoute = document.getElementById('chkShuttleIconOnRoute').checked;
     const iconDist = offsetDist * 0.5;
     for (let i = 0; i < stationOffsets.length - 1; i++) {
       const a = stationOffsets[i], b = stationOffsets[i + 1];
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-      const dx = b.x - a.x, dy = b.y - a.y;
-      const len = Math.sqrt(dx*dx + dy*dy) || 1;
-      const nx = rightSide ? -dy / len :  dy / len;
-      const ny = rightSide ?  dx / len : -dx / len;
-      const px = mx + nx * iconDist;
-      const py = my + ny * iconDist;
+      let px = mx, py = my;
+      if (!shuttleOnRoute) {
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const len = Math.sqrt(dx*dx + dy*dy) || 1;
+        const nx = rightSide ? -dy / len :  dy / len;
+        const ny = rightSide ?  dx / len : -dx / len;
+        px = mx + nx * iconDist;
+        py = my + ny * iconDist;
+      }
       layer.appendChild(makeTrainIcon(px, py));
     }
 
