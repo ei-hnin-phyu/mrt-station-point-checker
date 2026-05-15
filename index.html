@@ -83,13 +83,13 @@
     .sidebar-section:hover { border-color: rgba(255,255,255,0.09); }
 
     .section-label {
-      font-size: 0.58rem;
+      font-size: 0.62rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1.3px;
-      color: #334155;
+      color: #94a3b8;
       padding-bottom: 7px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       margin-bottom: 1px;
     }
 
@@ -460,10 +460,10 @@
     <!-- Affected Station - Delay -->
     <div class="sidebar-section">
       <div class="section-label">Affected Station — Delay</div>
-      <select id="delayStart"><option value="">— Start Station —</option></select>
-      <select id="delayEnd"><option value="">— End Station —</option></select>
+      <select id="delayStart"><option value="">Select Start Station</option></select>
+      <select id="delayEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
-        <button class="btn-route" onclick="applyDelayMarkers()">Apply</button>
+        <button class="btn-set" onclick="applyDelayMarkers()">Apply</button>
         <button class="btn-clr-route" onclick="clearDelayMarkers()">Clear</button>
       </div>
     </div>
@@ -471,10 +471,10 @@
     <!-- Affected Station - No Service -->
     <div class="sidebar-section">
       <div class="section-label">Affected Station — No Service</div>
-      <select id="noSvcStart"><option value="">— Start Station —</option></select>
-      <select id="noSvcEnd"><option value="">— End Station —</option></select>
+      <select id="noSvcStart"><option value="">Select Start Station</option></select>
+      <select id="noSvcEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
-        <button class="btn-route" onclick="applyNoServiceMarkers()">Apply</button>
+        <button class="btn-set" onclick="applyNoServiceMarkers()">Apply</button>
         <button class="btn-clr-route" onclick="clearNoServiceMarkers()">Clear</button>
       </div>
     </div>
@@ -482,10 +482,10 @@
     <!-- Location of Fault -->
     <div class="sidebar-section">
       <div class="section-label">Location of Fault</div>
-      <select id="faultStart"><option value="">— Station A —</option></select>
-      <select id="faultEnd"><option value="">— Station B —</option></select>
+      <select id="faultStart"><option value="">Select Start Station</option></select>
+      <select id="faultEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
-        <button class="btn-route" onclick="applyFaultMarker()">Apply</button>
+        <button class="btn-set" onclick="applyFaultMarker()">Apply</button>
         <button class="btn-clr-route" onclick="clearFaultMarker()">Clear</button>
       </div>
     </div>
@@ -493,8 +493,8 @@
     <!-- Bus Bridge -->
     <div class="sidebar-section">
       <div class="section-label">Auto Bridging Bus Route</div>
-      <select id="busStart"><option value="">— Bus Start —</option></select>
-      <select id="busEnd"><option value="">— Bus End —</option></select>
+      <select id="busStart"><option value="">Select Start Station</option></select>
+      <select id="busEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
         <input type="color" id="busColor" value="#8B00FF" title="Bus color">
         <input type="number" id="busOffset" value="20" min="1" max="200" style="width:52px">
@@ -503,7 +503,7 @@
           Right
         </label>
       </div>
-      <button class="btn-bus" onclick="generateBusPoints()">Generate Bus Points</button>
+      <button class="btn-set" onclick="generateBusPoints()">Draw Route</button>
       <div class="btn-row">
         <button class="btn-export" onclick="exportBusJSON()">⬇ Export Bus</button>
         <button class="btn-clr-route" onclick="clearBusPoints()">Clear Bus</button>
@@ -513,8 +513,8 @@
     <!-- Shuttle Trains -->
     <div class="sidebar-section">
       <div class="section-label">Shuttle Trains Route</div>
-      <select id="shuttleStart"><option value="">— Shuttle Start —</option></select>
-      <select id="shuttleEnd"><option value="">— Shuttle End —</option></select>
+      <select id="shuttleStart"><option value="">Select Start Station</option></select>
+      <select id="shuttleEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
         <input type="color" id="shuttleColor" value="#FF69B4" title="Shuttle color">
         <input type="number" id="shuttleOffset" value="20" min="1" max="200" style="width:52px">
@@ -523,7 +523,7 @@
           Right
         </label>
       </div>
-      <button class="btn-bus" onclick="drawShuttleRoute()">Draw Shuttle</button>
+      <button class="btn-set" onclick="drawShuttleRoute()">Draw Shuttle</button>
       <div class="btn-row">
         <button class="btn-export" onclick="exportShuttleJSON()">⬇ Export Shuttle</button>
         <button class="btn-clr-route" onclick="clearShuttleRoute()">Clear</button>
@@ -533,12 +533,12 @@
     <!-- Turn Around -->
     <div class="sidebar-section">
       <div class="section-label">Turn Around</div>
-      <select id="taStart"><option value="">— Station A —</option></select>
-      <select id="taEnd"><option value="">— Station B —</option></select>
+      <select id="taStart"><option value="">Select Start Station</option></select>
+      <select id="taEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
         <input type="color" id="taColor" value="#8B4513" title="Turn around color">
       </div>
-      <button class="btn-bus" onclick="drawTurnAround()">Draw Turn Around</button>
+      <button class="btn-set" onclick="drawTurnAround()">Draw Turn Around</button>
       <div class="btn-row">
         <button class="btn-export" onclick="exportTurnAroundJSON()">⬇ Export</button>
         <button class="btn-clr-route" onclick="clearTurnAround()">Clear</button>
@@ -576,8 +576,8 @@
     <!-- Route -->
     <div class="sidebar-section">
       <div class="section-label">Manual Route</div>
-      <select id="routeStart"><option value="">— Start Station —</option></select>
-      <select id="routeEnd"><option value="">— End Station —</option></select>
+      <select id="routeStart"><option value="">Select Start Station</option></select>
+      <select id="routeEnd"><option value="">Select End Station</option></select>
       <div class="btn-row">
         <input type="color" id="routeColor" value="#ff6b6b" title="Route color">
         <button class="btn-route" onclick="drawRoute()">Draw Route</button>
@@ -638,8 +638,8 @@
         <div class="legend-row">
           <span class="legend-icon">
             <svg viewBox="-8 -16 16 20" width="22" height="22">
-              <polygon points="-3.5,-6 3.5,-6 0,0" fill="#E53935"/>
-              <circle cx="0" cy="-10" r="5" fill="#E53935"/>
+              <polygon points="-3.5,-6 3.5,-6 0,0" fill="#E53935" stroke="#000" stroke-width="0.8" stroke-linejoin="round"/>
+              <circle cx="0" cy="-10" r="5" fill="#E53935" stroke="#000" stroke-width="0.8"/>
               <circle cx="0" cy="-10" r="1.9" fill="#fff"/>
             </svg>
           </span>
@@ -815,8 +815,8 @@
     const start = document.getElementById('delayStart');
     const end   = document.getElementById('delayEnd');
     const sv = start.value, ev = end.value;
-    start.innerHTML = '<option value="">— Start Station —</option>';
-    end.innerHTML   = '<option value="">— End Station —</option>';
+    start.innerHTML = '<option value="">Select Start Station</option>';
+    end.innerHTML   = '<option value="">Select End Station</option>';
     stations.forEach((s, i) => {
       const o1 = document.createElement('option');
       o1.value = i; o1.textContent = `${s.id} — ${s.name}`;
@@ -882,8 +882,8 @@
     const start = document.getElementById('noSvcStart');
     const end   = document.getElementById('noSvcEnd');
     const sv = start.value, ev = end.value;
-    start.innerHTML = '<option value="">— Start Station —</option>';
-    end.innerHTML   = '<option value="">— End Station —</option>';
+    start.innerHTML = '<option value="">Select Start Station</option>';
+    end.innerHTML   = '<option value="">Select End Station</option>';
     stations.forEach((s, i) => {
       const o1 = document.createElement('option');
       o1.value = i; o1.textContent = `${s.id} — ${s.name}`;
@@ -977,8 +977,8 @@
     const start = document.getElementById('faultStart');
     const end   = document.getElementById('faultEnd');
     const sv = start.value, ev = end.value;
-    start.innerHTML = '<option value="">— Station A —</option>';
-    end.innerHTML   = '<option value="">— Station B —</option>';
+    start.innerHTML = '<option value="">Select Start Station</option>';
+    end.innerHTML   = '<option value="">Select End Station</option>';
     stations.forEach((s, i) => {
       const o1 = document.createElement('option');
       o1.value = i; o1.textContent = `${s.id} — ${s.name}`;
@@ -1019,11 +1019,16 @@
     const pin = document.createElementNS(SVGNS, 'polygon');
     pin.setAttribute('points', `${-r*0.7},${-r*1.2} ${r*0.7},${-r*1.2} 0,0`);
     pin.setAttribute('fill', '#E53935');
+    pin.setAttribute('stroke', '#000');
+    pin.setAttribute('stroke-width', '0.8');
+    pin.setAttribute('stroke-linejoin', 'round');
     g.appendChild(pin);
     const circle = document.createElementNS(SVGNS, 'circle');
     circle.setAttribute('cx', '0'); circle.setAttribute('cy', `${-r*2}`);
     circle.setAttribute('r', `${r}`);
     circle.setAttribute('fill', '#E53935');
+    circle.setAttribute('stroke', '#000');
+    circle.setAttribute('stroke-width', '0.8');
     g.appendChild(circle);
     const inner = document.createElementNS(SVGNS, 'circle');
     inner.setAttribute('cx', '0'); inner.setAttribute('cy', `${-r*2}`);
@@ -1191,7 +1196,7 @@
 
     // Route, bus, shuttle & turn-around start selects
     const selIds   = ['routeStart', 'routeEnd', 'busStart', 'busEnd', 'shuttleStart', 'shuttleEnd', 'taStart'];
-    const defaults = ['— Start Station —', '— End Station —', '— Bus Start —', '— Bus End —', '— Shuttle Start —', '— Shuttle End —', '— Station A —'];
+    const defaults = ['Select Start Station', 'Select End Station', 'Select Start Station', 'Select End Station', 'Select Start Station', 'Select End Station', 'Select Start Station'];
     selIds.forEach((id, k) => {
       const sel = document.getElementById(id);
       sel.innerHTML = `<option value="">${defaults[k]}</option>`;
@@ -1202,7 +1207,7 @@
       });
     });
     // taEnd is populated dynamically when taStart changes
-    document.getElementById('taEnd').innerHTML = '<option value="">— Station B —</option>';
+    document.getElementById('taEnd').innerHTML = '<option value="">Select End Station</option>';
 
     populateDelaySelects();
     populateNoServiceSelects();
@@ -1795,7 +1800,7 @@
   document.getElementById('taStart').addEventListener('change', function () {
     const si     = parseInt(this.value);
     const endSel = document.getElementById('taEnd');
-    endSel.innerHTML = '<option value="">— Station B —</option>';
+    endSel.innerHTML = '<option value="">Select End Station</option>';
     if (isNaN(si) || !stations.length) return;
     const adjacent = [];
     if (si > 0)                   adjacent.push(si - 1);
