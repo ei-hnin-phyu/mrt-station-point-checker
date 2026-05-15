@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MRT Station Point Checker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #0d0d1f;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 320px;
+      min-width: 320px;
+      height: 100vh;
+      background: #0a0a1a;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.25s cubic-bezier(.4,0,.2,1), min-width 0.25s cubic-bezier(.4,0,.2,1);
+      position: relative;
+      flex-shrink: 0;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    }
+    .sidebar.collapsed { width: 36px; min-width: 36px; }
+    .sidebar.collapsed .sidebar-content { display: none; }
+
+    .sidebar-toggle {
+      position: absolute;
+      top: 12px;
+      right: 8px;
+      width: 22px;
+      height: 22px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #475569;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      z-index: 10;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .sidebar-toggle:hover { background: rgba(255,255,255,0.1); color: #94a3b8; border-color: rgba(255,255,255,0.2); }
+
+    .sidebar-content {
+      padding: 46px 10px 12px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.08) transparent;
+    }
+    .sidebar-content::-webkit-scrollbar { width: 4px; }
+    .sidebar-content::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+    .sidebar-section {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.055);
+      border-radius: 10px;
+      padding: 10px 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.2s;
+    }
+    .sidebar-section:hover { border-color: rgba(255,255,255,0.09); }
+
+    .section-label {
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      color: #334155;
+      padding-bottom: 7px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 1px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    .btn-row button { flex: 1; }
+    .btn-row .btn-nav { flex: 0; padding: 7px 11px; }
+
+    /* ── Main area ── */
+    .main-area {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      gap: 10px;
+    }
+
+    h1 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #f87171;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      align-self: flex-start;
+    }
+
+    select {
+      width: 100%;
+      padding: 7px 28px 7px 10px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.04);
+      color: #cbd5e1;
+      font-size: 0.8rem;
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 9px center;
+      transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    select:hover  { border-color: rgba(255,255,255,0.18); background-color: rgba(255,255,255,0.07); }
+    select:focus  { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    select option { background: #1a1a30; color: #cbd5e1; }
+
+    button {
+      padding: 7px 12px;
+      border-radius: 7px;
+      border: none;
+      font-size: 0.75rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: 0.2px;
+      transition: filter 0.15s, transform 0.1s, box-shadow 0.15s, opacity 0.15s;
+    }
+    button:hover:not(:disabled) { filter: brightness(1.18); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
+    button:active:not(:disabled) { transform: translateY(0); filter: brightness(0.93); box-shadow: none; }
+
+    .btn-set       { background: linear-gradient(135deg,#16a34a,#15803d); color:#fff; box-shadow:0 2px 8px rgba(22,163,74,.25); }
+    .btn-set:disabled { background:#0f1f14; color:#2d3f2d; cursor:default; box-shadow:none; filter:none; transform:none; }
+    .btn-export    { background: linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.25); }
+    .btn-load      { background: rgba(255,255,255,0.06); color:#64748b; border:1px solid rgba(255,255,255,0.09); }
+    .btn-nav       { background: rgba(255,255,255,0.06); color:#64748b; border:1px solid rgba(255,255,255,0.09); }
+    .btn-route     { background: linear-gradient(135deg,#d97706,#b45309); color:#fff; box-shadow:0 2px 8px rgba(217,119,6,.25); }
+    .btn-clr-route { background: rgba(255,255,255,0.05); color:#475569; border:1px solid rgba(255,255,255,0.07); }
+    .btn-bus       { background: linear-gradient(135deg,#0891b2,#0e7490); color:#fff; box-shadow:0 2px 8px rgba(8,145,178,.25); }
+
+    input[type="color"] {
+      width: 30px; height: 30px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: transparent;
+      cursor: pointer;
+      padding: 2px;
+      flex-shrink: 0;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+    input[type="color"]:hover { border-color: rgba(255,255,255,0.3); transform: scale(1.05); }
+
+    input[type="number"] {
+      padding: 6px 8px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.04);
+      color: #cbd5e1;
+      font-size: 0.8rem;
+      font-family: inherit;
+      flex-shrink: 0;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="number"]:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+
+    /* ── Map ── */
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+      cursor: crosshair;
+    }
+    .map-wrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      pointer-events: none;
+    }
+    #lineOverlayContainer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+    #lineOverlayContainer img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      mix-blend-mode: darken;
+    }
+
+    /* ── Info panel ── */
+    .info-panel {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      font-size: 0.8rem;
+    }
+    .info-row { display: flex; flex-direction: column; gap: 3px; }
+    .info-row .lbl { color: #334155; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+    .info-row .val { color: #e2e8f0; font-weight: 600; font-size: 0.82rem; }
+    .changed { color: #fbbf24 !important; }
+
+    /* ── Progress chips ── */
+    .progress {
+      width: 100%;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      font-size: 0.71rem;
+    }
+    .progress span {
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      color: #334155;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .progress span:hover { background: rgba(255,255,255,0.07); color: #64748b; }
+    .progress span.active  { border-color: rgba(56,189,248,0.5); color: #e2e8f0; background: rgba(56,189,248,0.08); }
+    .progress span.updated { border-color: rgba(34,197,94,0.5);  color: #86efac; background: rgba(34,197,94,0.08); }
+    .progress span.active.updated { border-color: rgba(251,191,36,0.5); color: #fbbf24; background: rgba(251,191,36,0.08); }
+
+    /* ── Status bar ── */
+    .status-bar {
+      font-size: 0.71rem;
+      font-weight: 500;
+      color: #1e293b;
+      text-align: center;
+      width: 100%;
+      padding: 6px 14px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.02);
+      transition: color 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .status-bar.ok  { color: #4ade80; background: rgba(74,222,128,0.05); border-color: rgba(74,222,128,0.12); }
+    .status-bar.err { color: #f87171; background: rgba(248,113,113,0.05); border-color: rgba(248,113,113,0.12); }
+
+    /* ── Bus tooltip ── */
+    #busTooltip {
+      position: absolute;
+      display: none;
+      background: rgba(10,10,26,0.95);
+      color: #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.77rem;
+      font-weight: 600;
+      pointer-events: none;
+      z-index: 30;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      transform: translate(-50%, -130%);
+      backdrop-filter: blur(8px);
+    }
+
+    /* ── Checkbox label ── */
+    .chk-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+    .chk-label:hover { color: #94a3b8; }
+    .chk-label input { cursor: pointer; width: 13px; height: 13px; flex-shrink: 0; accent-color: #3b82f6; }
+
+    /* ── Other lines overlay ── */
+    .ol-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .ol-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 7px 3px 5px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      color: #334155;
+      font-size: 0.68rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+      transform: none;
+      box-shadow: none;
+    }
+    .ol-chip:hover:not(:disabled) { background: rgba(255,255,255,0.08); color: #64748b; transform: none; box-shadow: none; filter: none; }
+    .ol-chip.visible { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.18); color: #cbd5e1; }
+    .ol-chip.visible:hover:not(:disabled) { background: rgba(255,255,255,0.11); transform: none; box-shadow: none; filter: none; }
+    .ol-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ol-eye { display: flex; align-items: center; opacity: 0.4; }
+    .ol-chip.visible .ol-eye { opacity: 1; color: #38bdf8; }
+
+    .btn-download { background: linear-gradient(135deg,#16a34a,#15803d); color:#fff; box-shadow:0 2px 8px rgba(22,163,74,.25); }
+  </style>
+</head>
+<body>
+
+<!-- ── Left sidebar ── -->
+<div class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle panel">◀</button>
+  <div class="sidebar-content">
+
+    <!-- Other Lines (compact chips, top) -->
+    <div class="sidebar-section" id="otherLinesSection" style="display:none">
+      <div class="section-label" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Other Lines</span>
+        <label style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:#94a3b8;cursor:pointer;font-weight:500">
+          <input type="checkbox" id="showOverlayChk" onchange="toggleShowOverlay()" style="accent-color:#38bdf8;width:13px;height:13px">
+          Show overlay
+        </label>
+      </div>
+      <div id="otherLinesToggleList" class="ol-grid"></div>
+    </div>
+
+    <!-- Line & Station -->
+    <div class="sidebar-section">
+      <div class="section-label">Line & Station</div>
+      <div class="btn-row" style="gap:6px">
+        <select id="lineSelect" onchange="loadLine()" style="flex:1;width:auto">
+          <option value="">— Select line —</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn-nav" onclick="stepStation(-1)">◀</button>
+        <select id="stationSelect" style="flex:1;width:auto"><option value="">— Station —</option></select>
+        <button class="btn-nav" onclick="stepStation(1)">▶</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-set" id="btnSet" disabled onclick="applyClick()">✔ Set</button>
+        <label class="chk-label">
+          <input type="checkbox" id="chkShowAll" onchange="toggleShowAll()">
+          Show all
+        </label>
+      </div>
+      <div class="btn-row">
+        <button class="btn-export" onclick="exportJSON()">⬇ Export JSON</button>
+        <button class="btn-load" onclick="document.getElementById('fileInput').click()">📂 Load</button>
+        <input type="file" id="fileInput" accept=".json" style="display:none">
+      </div>
+    </div>
+
+    <!-- Affected Station - Delay -->
+    <div class="sidebar-section">
+      <div class="section-label">Affected Station — Delay</div>
+      <select id="delayStart"><option value="">— Start Station —</option></select>
+      <select id="delayEnd"><option value="">— End Station —</option></select>
+      <div class="btn-row">
+        <button class="btn-route" onclick="applyDelayMarkers()">Apply</button>
+        <button class="btn-clr-route" onclick="clearDelayMarkers()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Affected Station - No Service -->
+    <div class="sidebar-section">
+      <div class="section-label">Affected Station — No Service</div>
+      <select id="noSvcStart"><option value="">— Start Station —</option></select>
+      <select id="noSvcEnd"><option value="">— End Station —</option></select>
+      <div class="btn-row">
+        <button class="btn-route" onclick="applyNoServiceMarkers()">Apply</button>
+        <button class="btn-clr-route" onclick="clearNoServiceMarkers()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Location of Fault -->
+    <div class="sidebar-section">
+      <div class="section-label">Location of Fault</div>
+      <select id="faultStart"><option value="">— Station A —</option></select>
+      <select id="faultEnd"><option value="">— Station B —</option></select>
+      <div class="btn-row">
+        <button class="btn-route" onclick="applyFaultMarker()">Apply</button>
+        <button class="btn-clr-route" onclick="clearFaultMarker()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Bus Bridge -->
+    <div class="sidebar-section">
+      <div class="section-label">Auto Bridging Bus Route</div>
+      <select id="busStart"><option value="">— Bus Start —</option></select>
+      <select id="busEnd"><option value="">— Bus End —</option></select>
+      <div class="btn-row">
+        <input type="color" id="busColor" value="#8B00FF" title="Bus color">
+        <input type="number" id="busOffset" value="20" min="1" max="200" style="width:52px">
+        <label class="chk-label">
+          <input type="checkbox" id="busSideRight" checked>
+          Right
+        </label>
+      </div>
+      <button class="btn-bus" onclick="generateBusPoints()">Generate Bus Points</button>
+      <div class="btn-row">
+        <button class="btn-export" onclick="exportBusJSON()">⬇ Export Bus</button>
+        <button class="btn-clr-route" onclick="clearBusPoints()">Clear Bus</button>
+      </div>
+    </div>
+
+    <!-- Shuttle Trains -->
+    <div class="sidebar-section">
+      <div class="section-label">Shuttle Trains Route</div>
+      <select id="shuttleStart"><option value="">— Shuttle Start —</option></select>
+      <select id="shuttleEnd"><option value="">— Shuttle End —</option></select>
+      <div class="btn-row">
+        <input type="color" id="shuttleColor" value="#FF69B4" title="Shuttle color">
+        <input type="number" id="shuttleOffset" value="20" min="1" max="200" style="width:52px">
+        <label class="chk-label">
+          <input type="checkbox" id="shuttleSideRight">
+          Right
+        </label>
+      </div>
+      <button class="btn-bus" onclick="drawShuttleRoute()">Draw Shuttle</button>
+      <div class="btn-row">
+        <button class="btn-export" onclick="exportShuttleJSON()">⬇ Export Shuttle</button>
+        <button class="btn-clr-route" onclick="clearShuttleRoute()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Turn Around -->
+    <div class="sidebar-section">
+      <div class="section-label">Turn Around</div>
+      <select id="taStart"><option value="">— Station A —</option></select>
+      <select id="taEnd"><option value="">— Station B —</option></select>
+      <div class="btn-row">
+        <input type="color" id="taColor" value="#8B4513" title="Turn around color">
+      </div>
+      <button class="btn-bus" onclick="drawTurnAround()">Draw Turn Around</button>
+      <div class="btn-row">
+        <button class="btn-export" onclick="exportTurnAroundJSON()">⬇ Export</button>
+        <button class="btn-clr-route" onclick="clearTurnAround()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Route -->
+    <div class="sidebar-section">
+      <div class="section-label">Manual Route</div>
+      <select id="routeStart"><option value="">— Start Station —</option></select>
+      <select id="routeEnd"><option value="">— End Station —</option></select>
+      <div class="btn-row">
+        <input type="color" id="routeColor" value="#ff6b6b" title="Route color">
+        <button class="btn-route" onclick="drawRoute()">Draw Route</button>
+        <button class="btn-clr-route" onclick="clearRoute()">Clear</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Main area ── -->
+<div class="main-area">
+  <h1>MRT Station Point Checker</h1>
+
+  <div class="map-wrapper" id="mapWrapper">
+    <img id="mapImg" src="images/lta-rail-map.png" draggable="false" alt="Line map">
+    <div id="lineOverlayContainer"></div>
+    <svg id="routeSvg" viewBox="0 0 985 735" preserveAspectRatio="none"
+         style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:5;overflow:visible">
+      <g id="routeLayer"></g>
+      <g id="busLayer"></g>
+      <g id="shuttleLayer"></g>
+      <g id="turnAroundLayer"></g>
+      <g id="overlayLayer"></g>
+      <g id="delayLayer"></g>
+      <g id="noServiceLayer"></g>
+      <g id="faultLayer"></g>
+      <g id="markerLayer"></g>
+    </svg>
+    <div id="busTooltip"></div>
+  </div>
+
+  <div class="info-panel">
+    <div class="info-row">
+      <span class="lbl">Station</span>
+      <span class="val" id="infoStation">—</span>
+    </div>
+    <div class="info-row">
+      <span class="lbl">Stored ✕</span>
+      <span class="val" id="infoStored">—</span>
+    </div>
+    <div class="info-row">
+      <span class="lbl">Clicked <span style="color:#00bfff">●</span></span>
+      <span class="val" id="infoClicked">— (click map)</span>
+    </div>
+  </div>
+
+  <div class="progress" id="progressBar"></div>
+  <div class="status-bar" id="statusBar">Select a line to begin.</div>
+</div>
+
+<script>
+  // ── Sidebar toggle ───────────────────────────────────
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const btn     = document.getElementById('sidebarToggle');
+    sidebar.classList.toggle('collapsed');
+    btn.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+  }
+
+  // ── Line configuration — add more lines here ──────────
+  const LINES = [
+    { id: 'NSL', name: 'North-South Line',        color: '#D42E12', image: 'images/NSL.jpg',   json: 'updated-station-points/nsl_stations.json' },
+    { id: 'EWL', name: 'East-West Line',           color: '#009645', image: 'images/EWL.jpg',   json: 'updated-station-points/ewl_stations.json' },
+    { id: 'NEL', name: 'North East Line',          color: '#9900AA', image: 'images/NEL.jpg',   json: 'updated-station-points/nel_stations.json' },
+    { id: 'CCL', name: 'Circle Line',              color: '#FA9E0D', image: 'images/CCL.jpg',   json: 'updated-station-points/ccl_stations.json' },
+    { id: 'DTL', name: 'Downtown Line',            color: '#005EC4', image: 'images/DTL.jpg',   json: 'updated-station-points/dtl_stations.json' },
+    { id: 'TEL', name: 'Thomson-East Coast Line',  color: '#9D5B25', image: 'images/TEL.jpg',   json: 'updated-station-points/tel_stations.json' },
+    { id: 'BP',  name: 'Bukit Panjang LRT',        color: '#748477', image: 'images/BPLRT.jpg', json: 'updated-station-points/bp_stations.json'  },
+    { id: 'SK',  name: 'Sengkang LRT',             color: '#748477', image: 'images/SPLRT.jpg', json: 'updated-station-points/sk_stations.json'  },
+    { id: 'PG',  name: 'Punggol LRT',              color: '#748477', image: 'images/SPLRT.jpg', json: 'updated-station-points/pg_stations.json'  },
+  ];
+
+  const IMAGE_W = 985;
+  const IMAGE_H = 735;
+
+  let stations     = [];
+  let updated      = new Set();
+  let currentIdx   = -1;
+  let pendingClick = null;
+  let currentLine  = null;
+  let busRouteData     = null;
+  let shuttleRouteData = null;
+  let turnAroundData   = [];
+
+  const lineSelect    = document.getElementById('lineSelect');
+  const stationSelect = document.getElementById('stationSelect');
+  const mapImg        = document.getElementById('mapImg');
+  const mapWrapper    = document.getElementById('mapWrapper');
+  const btnSet        = document.getElementById('btnSet');
+  const infoStation   = document.getElementById('infoStation');
+  const infoStored    = document.getElementById('infoStored');
+  const infoClicked   = document.getElementById('infoClicked');
+  const progressBar   = document.getElementById('progressBar');
+  const statusBar     = document.getElementById('statusBar');
+
+  // ── SVG marker helpers ────────────────────────────────
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const markerLayer = document.getElementById('markerLayer');
+  let svgActiveMarker = null;
+  let svgClickDot = null;
+
+  function createSvgCross(x, y) {
+    const g = document.createElementNS(SVGNS, 'g');
+    g.setAttribute('transform', `translate(${x},${y})`);
+    g.setAttribute('pointer-events', 'none');
+    const s = 5;
+    [[-s,-s,s,s],[s,-s,-s,s]].forEach(([x1,y1,x2,y2]) => {
+      const ln = document.createElementNS(SVGNS, 'line');
+      ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
+      ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
+      ln.setAttribute('stroke','#000'); ln.setAttribute('stroke-width','2');
+      ln.setAttribute('stroke-linecap','round');
+      g.appendChild(ln);
+    });
+    return g;
+  }
+
+  function createSvgDot(x, y) {
+    const c = document.createElementNS(SVGNS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y);
+    c.setAttribute('r', '5');
+    c.setAttribute('fill', '#00bfff');
+    c.setAttribute('stroke', '#fff');
+    c.setAttribute('stroke-width', '2');
+    c.setAttribute('pointer-events', 'none');
+    return c;
+  }
+
+  // ── Affected Station — Delay ─────────────────────────
+  const delayLayer = document.getElementById('delayLayer');
+
+  function populateDelaySelects() {
+    const start = document.getElementById('delayStart');
+    const end   = document.getElementById('delayEnd');
+    const sv = start.value, ev = end.value;
+    start.innerHTML = '<option value="">— Start Station —</option>';
+    end.innerHTML   = '<option value="">— End Station —</option>';
+    stations.forEach((s, i) => {
+      const o1 = document.createElement('option');
+      o1.value = i; o1.textContent = `${s.id} — ${s.name}`;
+      start.appendChild(o1);
+      const o2 = o1.cloneNode(true);
+      end.appendChild(o2);
+    });
+    start.value = sv; end.value = ev;
+  }
+
+  function applyDelayMarkers() {
+    const si = parseInt(document.getElementById('delayStart').value);
+    const ei = parseInt(document.getElementById('delayEnd').value);
+    if (isNaN(si) || isNaN(ei)) { setStatus('Select start and end stations.', 'err'); return; }
+    const lo = Math.min(si, ei), hi = Math.max(si, ei);
+    delayLayer.innerHTML = '';
+    for (let i = lo; i <= hi; i++) {
+      const s = stations[i];
+      if (!s) continue;
+      const g = document.createElementNS(SVGNS, 'g');
+      g.setAttribute('transform', `translate(${s.x},${s.y})`);
+      g.setAttribute('pointer-events', 'none');
+      const sz = 5;
+      [[-sz,-sz,sz,sz],[sz,-sz,-sz,sz]].forEach(([x1,y1,x2,y2]) => {
+        const ln = document.createElementNS(SVGNS, 'line');
+        ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
+        ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
+        ln.setAttribute('stroke','#000');
+        ln.setAttribute('stroke-width','2.5');
+        ln.setAttribute('stroke-linecap','round');
+        g.appendChild(ln);
+      });
+      delayLayer.appendChild(g);
+    }
+    setStatus(`Delay markers: ${stations[lo].id} → ${stations[hi].id}`, 'ok');
+  }
+
+  function clearDelayMarkers() {
+    delayLayer.innerHTML = '';
+    document.getElementById('delayStart').value = '';
+    document.getElementById('delayEnd').value   = '';
+    setStatus('Delay markers cleared.', 'ok');
+  }
+
+  // ── Affected Station — No Service ───────────────────
+  const noServiceLayer = document.getElementById('noServiceLayer');
+
+  function populateNoServiceSelects() {
+    const start = document.getElementById('noSvcStart');
+    const end   = document.getElementById('noSvcEnd');
+    const sv = start.value, ev = end.value;
+    start.innerHTML = '<option value="">— Start Station —</option>';
+    end.innerHTML   = '<option value="">— End Station —</option>';
+    stations.forEach((s, i) => {
+      const o1 = document.createElement('option');
+      o1.value = i; o1.textContent = `${s.id} — ${s.name}`;
+      start.appendChild(o1);
+      const o2 = o1.cloneNode(true);
+      end.appendChild(o2);
+    });
+    start.value = sv; end.value = ev;
+  }
+
+  function applyNoServiceMarkers() {
+    const si = parseInt(document.getElementById('noSvcStart').value);
+    const ei = parseInt(document.getElementById('noSvcEnd').value);
+    if (isNaN(si) || isNaN(ei)) { setStatus('Select start and end stations.', 'err'); return; }
+    const lo = Math.min(si, ei), hi = Math.max(si, ei);
+    noServiceLayer.innerHTML = '';
+    for (let i = lo; i <= hi; i++) {
+      const s = stations[i];
+      if (!s) continue;
+      const g = document.createElementNS(SVGNS, 'g');
+      g.setAttribute('transform', `translate(${s.x},${s.y})`);
+      g.setAttribute('pointer-events', 'none');
+      const sz = 6;
+      // Warning triangle (point up)
+      const tri = document.createElementNS(SVGNS, 'polygon');
+      tri.setAttribute('points', `0,${-sz} ${-sz},${sz*0.6} ${sz},${sz*0.6}`);
+      tri.setAttribute('fill', '#FFCC00');
+      tri.setAttribute('stroke', '#000');
+      tri.setAttribute('stroke-width', '0.8');
+      g.appendChild(tri);
+      // Exclamation mark: bar on top, dot below
+      const dot = document.createElementNS(SVGNS, 'circle');
+      dot.setAttribute('cx', '0'); dot.setAttribute('cy', `${sz*0.35}`);
+      dot.setAttribute('r', '0.8');
+      dot.setAttribute('fill', '#000');
+      g.appendChild(dot);
+      const bar = document.createElementNS(SVGNS, 'line');
+      bar.setAttribute('x1', '0'); bar.setAttribute('y1', `${-sz*0.55}`);
+      bar.setAttribute('x2', '0'); bar.setAttribute('y2', `${sz*0.1}`);
+      bar.setAttribute('stroke', '#000');
+      bar.setAttribute('stroke-width', '1.2');
+      bar.setAttribute('stroke-linecap', 'round');
+      g.appendChild(bar);
+      noServiceLayer.appendChild(g);
+    }
+    setStatus(`No-service markers: ${stations[lo].id} → ${stations[hi].id}`, 'ok');
+  }
+
+  function clearNoServiceMarkers() {
+    noServiceLayer.innerHTML = '';
+    document.getElementById('noSvcStart').value = '';
+    document.getElementById('noSvcEnd').value   = '';
+    setStatus('No-service markers cleared.', 'ok');
+  }
+
+  // ── Location of Fault ────────────────────────────────
+  const faultLayer = document.getElementById('faultLayer');
+
+  function populateFaultSelects() {
+    const start = document.getElementById('faultStart');
+    const end   = document.getElementById('faultEnd');
+    const sv = start.value, ev = end.value;
+    start.innerHTML = '<option value="">— Station A —</option>';
+    end.innerHTML   = '<option value="">— Station B —</option>';
+    stations.forEach((s, i) => {
+      const o1 = document.createElement('option');
+      o1.value = i; o1.textContent = `${s.id} — ${s.name}`;
+      start.appendChild(o1);
+      const o2 = o1.cloneNode(true);
+      end.appendChild(o2);
+    });
+    start.value = sv; end.value = ev;
+  }
+
+  function applyFaultMarker() {
+    const si = parseInt(document.getElementById('faultStart').value);
+    const ei = parseInt(document.getElementById('faultEnd').value);
+    if (isNaN(si) || isNaN(ei)) { setStatus('Select stations.', 'err'); return; }
+    faultLayer.innerHTML = '';
+    const r = 5;
+    let px, py, label;
+
+    if (si === ei) {
+      // Same station — place pin beside the station point
+      const s = stations[si];
+      px = s.x + 6;
+      py = s.y;
+      label = s.id;
+    } else {
+      // Different stations — random point along the straight line between them
+      const lo = Math.min(si, ei), hi = Math.max(si, ei);
+      const sa = stations[lo], sb = stations[hi];
+      const t = 0.2 + Math.random() * 0.6; // random between 20%–80%
+      px = sa.x + (sb.x - sa.x) * t;
+      py = sa.y + (sb.y - sa.y) * t;
+      label = `${stations[lo].id} → ${stations[hi].id}`;
+    }
+
+    const g = document.createElementNS(SVGNS, 'g');
+    g.setAttribute('transform', `translate(${px},${py})`);
+    g.setAttribute('pointer-events', 'none');
+    const pin = document.createElementNS(SVGNS, 'polygon');
+    pin.setAttribute('points', `${-r*0.7},${-r*1.2} ${r*0.7},${-r*1.2} 0,0`);
+    pin.setAttribute('fill', '#E53935');
+    g.appendChild(pin);
+    const circle = document.createElementNS(SVGNS, 'circle');
+    circle.setAttribute('cx', '0'); circle.setAttribute('cy', `${-r*2}`);
+    circle.setAttribute('r', `${r}`);
+    circle.setAttribute('fill', '#E53935');
+    g.appendChild(circle);
+    const inner = document.createElementNS(SVGNS, 'circle');
+    inner.setAttribute('cx', '0'); inner.setAttribute('cy', `${-r*2}`);
+    inner.setAttribute('r', `${r * 0.38}`);
+    inner.setAttribute('fill', '#fff');
+    g.appendChild(inner);
+    faultLayer.appendChild(g);
+    setStatus(`Fault marker: ${label}`, 'ok');
+  }
+
+  function clearFaultMarker() {
+    faultLayer.innerHTML = '';
+    document.getElementById('faultStart').value = '';
+    document.getElementById('faultEnd').value   = '';
+    setStatus('Fault marker cleared.', 'ok');
+  }
+
+  // ── Other-line overlay ───────────────────────────────
+  const overlayLayer  = document.getElementById('overlayLayer');
+  const otherLinesSec = document.getElementById('otherLinesSection');
+  const otherLinesList= document.getElementById('otherLinesToggleList');
+  const otherLineVis  = {}; // lineId -> bool
+
+  const EYE_OPEN = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const EYE_SHUT = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
+  function renderOtherLinesSidebar() {
+    if (!currentLine) { otherLinesSec.style.display = 'none'; return; }
+    otherLinesSec.style.display = 'flex';
+    otherLinesList.innerHTML = '';
+    LINES.forEach(l => {
+      if (l.id === currentLine.id) return;
+      const vis = !!otherLineVis[l.id];
+      const chip = document.createElement('button');
+      chip.className = 'ol-chip' + (vis ? ' visible' : '');
+      chip.title = l.name;
+      chip.onclick = () => toggleOtherLine(l.id);
+      chip.innerHTML = `<span class="ol-dot" style="background:${l.color}"></span>${l.id}<span class="ol-eye">${vis ? EYE_OPEN : EYE_SHUT}</span>`;
+      otherLinesList.appendChild(chip);
+    });
+  }
+
+  function toggleOtherLine(lineId) {
+    otherLineVis[lineId] = !otherLineVis[lineId];
+    drawOtherLineOverlays();
+    renderOtherLinesSidebar();
+    applyOverlayImg();
+  }
+
+  function drawOtherLineOverlays() {
+    overlayLayer.innerHTML = '';
+  }
+
+  function clearOtherLineOverlays() {
+    overlayLayer.innerHTML = '';
+    Object.keys(otherLineVis).forEach(k => delete otherLineVis[k]);
+    otherLinesSec.style.display = 'none';
+    applyOverlayImg();
+  }
+
+  function toggleShowOverlay() {
+    applyOverlayImg();
+  }
+
+  function applyOverlayImg() {
+    const container = document.getElementById('lineOverlayContainer');
+    container.innerHTML = '';
+    const chk = document.getElementById('showOverlayChk');
+    if (!currentLine || !chk.checked) return;
+    const addImg = (src) => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.draggable = false;
+      container.appendChild(img);
+    };
+    // Other lines first (bottom), active line last (top) so darken blend keeps it sharp
+    LINES.forEach(l => {
+      if (l.id === currentLine.id) return;
+      if (!otherLineVis[l.id]) return;
+      addImg(l.image);
+    });
+    // Active line always on top
+    addImg(currentLine.image);
+  }
+
+  // ── Build line selector ───────────────────────────────
+  LINES.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.id;
+    opt.textContent = `${l.id} — ${l.name}`;
+    lineSelect.appendChild(opt);
+  });
+
+  // ── Predefined station data (embedded from JSON files) ──
+  const STATION_DATA = {
+    NSL: [{"id":"NS1","name":"Jurong East","x":173,"y":437},{"id":"NS2","name":"Bukit Batok","x":173,"y":373},{"id":"NS3","name":"Bukit Gombak","x":172,"y":329},{"id":"NS4","name":"Choa Chu Kang","x":174,"y":279},{"id":"NS5","name":"Yew Tee","x":173,"y":224},{"id":"NS7","name":"Kranji","x":173,"y":174},{"id":"NS8","name":"Marsiling","x":201,"y":118},{"id":"NS9","name":"Woodlands","x":270,"y":105},{"id":"NS10","name":"Admiralty","x":313,"y":106},{"id":"NS11","name":"Sembawang","x":353,"y":103},{"id":"NS12","name":"Canberra","x":392,"y":104},{"id":"NS13","name":"Yishun","x":435,"y":118},{"id":"NS14","name":"Khatib","x":458,"y":142},{"id":"NS15","name":"Yio Chu Kang","x":462,"y":174},{"id":"NS16","name":"Ang Mo Kio","x":463,"y":206},{"id":"NS17","name":"Bishan","x":462,"y":240},{"id":"NS18","name":"Braddell","x":461,"y":262},{"id":"NS19","name":"Toa Payoh","x":462,"y":290},{"id":"NS20","name":"Novena","x":446,"y":324},{"id":"NS21","name":"Newton","x":422,"y":349},{"id":"NS22","name":"Orchard","x":393,"y":392},{"id":"NS23","name":"Somerset","x":417,"y":424},{"id":"NS24","name":"Dhoby Ghaut","x":457,"y":464},{"id":"NS25","name":"City Hall","x":522,"y":534},{"id":"NS26","name":"Raffles Place","x":522,"y":563},{"id":"NS27","name":"Marina Bay","x":530,"y":607},{"id":"NS28","name":"Marina South Pier","x":560,"y":633}],
+    EWL: [{"id":"EW33","name":"Tuas Link","x":72,"y":239},{"id":"EW32","name":"Tuas West Road","x":70,"y":265},{"id":"EW31","name":"Tuas Crescent","x":71,"y":292},{"id":"EW30","name":"Gul Circle","x":72,"y":318},{"id":"EW29","name":"Joo Koon","x":71,"y":344},{"id":"EW28","name":"Pioneer","x":71,"y":371},{"id":"EW27","name":"Boon Lay","x":71,"y":397},{"id":"EW26","name":"Lakeside","x":102,"y":429},{"id":"EW25","name":"Chinese Garden","x":136,"y":430},{"id":"EW24","name":"Jurong East","x":181,"y":430},{"id":"EW23","name":"Clementi","x":217,"y":429},{"id":"EW22","name":"Dover","x":249,"y":429},{"id":"EW21","name":"Buona Vista","x":290,"y":428},{"id":"EW20","name":"Commonwealth","x":310,"y":448},{"id":"EW19","name":"Queenstown","x":329,"y":465},{"id":"EW18","name":"Redhill","x":351,"y":487},{"id":"EW17","name":"Tiong Bahru","x":372,"y":508},{"id":"EW16","name":"Outram Park","x":395,"y":530},{"id":"EW15","name":"Tanjong Pagar","x":440,"y":572},{"id":"EW14","name":"Raffles Place","x":532,"y":559},{"id":"EW13","name":"City Hall","x":531,"y":530},{"id":"EW12","name":"Bugis","x":569,"y":480},{"id":"EW11","name":"Lavender","x":600,"y":456},{"id":"EW10","name":"Kallang","x":621,"y":435},{"id":"EW9","name":"Aljunied","x":640,"y":414},{"id":"EW8","name":"Paya Lebar","x":662,"y":390},{"id":"EW7","name":"Eunos","x":698,"y":359},{"id":"EW6","name":"Kembangan","x":724,"y":331},{"id":"EW5","name":"Bedok","x":770,"y":308},{"id":"EW4","name":"Tanah Merah","x":823,"y":308},{"id":"EW3","name":"Simei","x":834,"y":289},{"id":"EW2","name":"Tampines","x":834,"y":263},{"id":"EW1","name":"Pasir Ris","x":835,"y":236},{"id":"CG1","name":"Expo","x":826,"y":350},{"id":"CG2","name":"Changi Airport","x":900,"y":360}],
+    NEL: [{"id":"NE1","name":"HarbourFront","x":399,"y":606},{"id":"NE3","name":"Outram Park","x":410,"y":528},{"id":"NE4","name":"Chinatown","x":429,"y":505},{"id":"NE5","name":"Clarke Quay","x":452,"y":487},{"id":"NE6","name":"Dhoby Ghaut","x":468,"y":458},{"id":"NE7","name":"Little India","x":486,"y":399},{"id":"NE8","name":"Farrer Park","x":494,"y":369},{"id":"NE9","name":"Boon Keng","x":493,"y":342},{"id":"NE10","name":"Potong Pasir","x":510,"y":315},{"id":"NE11","name":"Woodleigh","x":537,"y":288},{"id":"NE12","name":"Serangoon","x":559,"y":258},{"id":"NE13","name":"Kovan","x":590,"y":237},{"id":"NE14","name":"Hougang","x":611,"y":216},{"id":"NE15","name":"Buangkok","x":629,"y":197},{"id":"NE16","name":"Sengkang","x":642,"y":179},{"id":"NE17","name":"Punggol","x":685,"y":134},{"id":"NE18","name":"Punggol Coast","x":709,"y":115}],
+    CCL: [{"id":"CC1","name":"Dhoby Ghaut","x":483,"y":459},{"id":"CC2","name":"Bras Basah","x":530,"y":487},{"id":"CC3","name":"Esplanade","x":573,"y":530},{"id":"CC4","name":"Promenade","x":636,"y":545},{"id":"CC5","name":"Nicoll Highway","x":653,"y":512},{"id":"CC6","name":"Stadium","x":663,"y":486},{"id":"CC7","name":"Mountbatten","x":670,"y":455},{"id":"CC8","name":"Dakota","x":672,"y":425},{"id":"CC9","name":"Paya Lebar","x":675,"y":390},{"id":"CC10","name":"MacPherson","x":660,"y":348},{"id":"CC11","name":"Tai Seng","x":633,"y":314},{"id":"CC12","name":"Bartley","x":607,"y":286},{"id":"CC13","name":"Serangoon","x":575,"y":260},{"id":"CC14","name":"Lorong Chuan","x":520,"y":244},{"id":"CC15","name":"Bishan","x":470,"y":239},{"id":"CC16","name":"Marymount","x":413,"y":248},{"id":"CC17","name":"Caldecott","x":370,"y":266},{"id":"CC19","name":"Botanic Gardens","x":311,"y":318},{"id":"CC20","name":"Farrer Road","x":298,"y":355},{"id":"CC21","name":"Holland Village","x":287,"y":388},{"id":"CC22","name":"Buona Vista","x":274,"y":430},{"id":"CC23","name":"one-north","x":283,"y":457},{"id":"CC24","name":"Kent Ridge","x":290,"y":486},{"id":"CC25","name":"Haw Par Villa","x":301,"y":513},{"id":"CC26","name":"Pasir Panjang","x":314,"y":537},{"id":"CC27","name":"Labrador Park","x":333,"y":560},{"id":"CC28","name":"Telok Blangah","x":358,"y":581},{"id":"CC29","name":"HarbourFront","x":386,"y":608},{"id":"CE1","name":"Bayfront","x":498,"y":582},{"id":"CE2","name":"Marina Bay","x":511,"y":610}],
+    DTL: [{"id":"DT1","name":"Bukit Panjang","x":239,"y":204},{"id":"DT2","name":"Cashew","x":239,"y":219},{"id":"DT3","name":"Hillview","x":240,"y":234},{"id":"DT4","name":"Hume","x":239,"y":250},{"id":"DT5","name":"Beauty World","x":240,"y":265},{"id":"DT6","name":"King Albert Park","x":240,"y":280},{"id":"DT7","name":"Sixth Avenue","x":239,"y":295},{"id":"DT8","name":"Tan Kah Kee","x":272,"y":318},{"id":"DT9","name":"Botanic Gardens","x":326,"y":318},{"id":"DT10","name":"Stevens","x":370,"y":316},{"id":"DT11","name":"Newton","x":443,"y":348},{"id":"DT12","name":"Little India","x":503,"y":399},{"id":"DT13","name":"Rochor","x":524,"y":426},{"id":"DT14","name":"Bugis","x":584,"y":481},{"id":"DT15","name":"Promenade","x":622,"y":544},{"id":"DT16","name":"Bayfront","x":583,"y":581},{"id":"DT17","name":"Downtown","x":553,"y":591},{"id":"DT18","name":"Telok Ayer","x":497,"y":559},{"id":"DT19","name":"Chinatown","x":445,"y":504},{"id":"DT20","name":"Fort Canning","x":435,"y":473},{"id":"DT21","name":"Bencoolen","x":538,"y":463},{"id":"DT22","name":"Jalan Besar","x":561,"y":439},{"id":"DT23","name":"Bendemeer","x":592,"y":410},{"id":"DT24","name":"Geylang Bahru","x":612,"y":389},{"id":"DT25","name":"Mattar","x":632,"y":369},{"id":"DT26","name":"MacPherson","x":648,"y":347},{"id":"DT27","name":"Ubi","x":679,"y":324},{"id":"DT28","name":"Kaki Bukit","x":703,"y":301},{"id":"DT29","name":"Bedok North","x":724,"y":280},{"id":"DT30","name":"Bedok Reservoir","x":763,"y":272},{"id":"DT31","name":"Tampines West","x":801,"y":273},{"id":"DT32","name":"Tampines","x":852,"y":272},{"id":"DT33","name":"Tampines East","x":879,"y":292},{"id":"DT34","name":"Upper Changi","x":878,"y":310},{"id":"DT35","name":"Expo","x":886,"y":341},{"id":"DT36","name":"Xilin","x":873,"y":367},{"id":"DT37","name":"Sungei Bedok","x":863,"y":387}],
+    TEL: [{"id":"TE1","name":"Woodlands North","x":220,"y":72},{"id":"TE2","name":"Woodlands","x":238,"y":100},{"id":"TE3","name":"Woodlands South","x":252,"y":122},{"id":"TE4","name":"Springleaf","x":284,"y":142},{"id":"TE5","name":"Lentor","x":328,"y":162},{"id":"TE6","name":"Mayflower","x":368,"y":181},{"id":"TE7","name":"Bright Hill","x":393,"y":200},{"id":"TE8","name":"Upper Thomson","x":419,"y":235},{"id":"TE9","name":"Caldecott","x":449,"y":265},{"id":"TE11","name":"Stevens","x":422,"y":330},{"id":"TE12","name":"Napier","x":407,"y":357},{"id":"TE13","name":"Orchard Boulevard","x":431,"y":374},{"id":"TE14","name":"Orchard","x":373,"y":392},{"id":"TE15","name":"Great World","x":381,"y":420},{"id":"TE16","name":"Havelock","x":388,"y":448},{"id":"TE17","name":"Outram Park","x":390,"y":533},{"id":"TE18","name":"Maxwell","x":451,"y":550},{"id":"TE19","name":"Shenton Way","x":468,"y":597},{"id":"TE20","name":"Marina Bay","x":511,"y":610},{"id":"TE22","name":"Gardens by the Bay","x":638,"y":585},{"id":"TE23","name":"Tanjong Rhu","x":659,"y":537},{"id":"TE24","name":"Katong Park","x":705,"y":518},{"id":"TE25","name":"Tanjong Katong","x":731,"y":500},{"id":"TE26","name":"Marine Parade","x":761,"y":481},{"id":"TE27","name":"Marine Terrace","x":796,"y":470},{"id":"TE28","name":"Siglap","x":823,"y":443},{"id":"TE29","name":"Bayshore","x":841,"y":428},{"id":"TE30","name":"Bedok South","x":848,"y":388},{"id":"TE31","name":"Sungei Bedok","x":867,"y":400}],
+    BP:  [{"id":"BP1","name":"Bukit Panjang","x":244,"y":197},{"id":"BP2","name":"South View","x":212,"y":215},{"id":"BP3","name":"Keat Hong","x":193,"y":234},{"id":"BP4","name":"Teck Whye","x":184,"y":214},{"id":"BP5","name":"Phoenix","x":233,"y":188},{"id":"BP6","name":"Petir","x":246,"y":155},{"id":"BP7","name":"Pending","x":231,"y":155},{"id":"BP8","name":"Bangkit","x":221,"y":155},{"id":"BP9","name":"Fajar","x":225,"y":130},{"id":"BP10","name":"Segar","x":213,"y":130},{"id":"BP11","name":"Jelapang","x":206,"y":154},{"id":"BP12","name":"Senja","x":232,"y":165},{"id":"BP13","name":"Ten Mile Junction","x":211,"y":175},{"id":"BP14","name":"Choa Chu Kang","x":158,"y":295}],
+    SK:  [{"id":"STC","name":"Sengkang","x":678,"y":178},{"id":"SW1","name":"Cheng Lim","x":619,"y":176},{"id":"SW2","name":"Farmway","x":618,"y":160},{"id":"SW3","name":"Kupang","x":613,"y":168},{"id":"SW4","name":"Thanggam","x":618,"y":178},{"id":"SW5","name":"Fernvale","x":628,"y":182},{"id":"SW6","name":"Layar","x":637,"y":178},{"id":"SW7","name":"Tongkang","x":641,"y":168},{"id":"SW8","name":"Renjong","x":635,"y":160},{"id":"SE1","name":"Compassvale","x":650,"y":168},{"id":"SE2","name":"Rumbia","x":654,"y":158},{"id":"SE3","name":"Bakau","x":665,"y":161},{"id":"SE4","name":"Kangkar","x":659,"y":170},{"id":"SE5","name":"Ranggung","x":652,"y":177}],
+    PG:  [{"id":"PTC","name":"Punggol","x":737,"y":132},{"id":"PE1","name":"Cove","x":725,"y":84},{"id":"PE2","name":"Meridian","x":719,"y":80},{"id":"PE3","name":"Coral Edge","x":715,"y":88},{"id":"PE4","name":"Riviera","x":718,"y":97},{"id":"PE5","name":"Kadaloor","x":721,"y":106},{"id":"PE6","name":"Oasis","x":727,"y":106},{"id":"PE7","name":"Damai","x":731,"y":97},{"id":"PW1","name":"Sam Kee","x":750,"y":88},{"id":"PW2","name":"Teck Lee","x":757,"y":80},{"id":"PW3","name":"Punggol Point","x":770,"y":79},{"id":"PW4","name":"Samudera","x":744,"y":80},{"id":"PW5","name":"Nibong","x":741,"y":98},{"id":"PW6","name":"Sumang","x":750,"y":108},{"id":"PW7","name":"Soo Teck","x":757,"y":116}],
+  };
+
+  function loadLine() {
+    const id = lineSelect.value;
+    if (!id) {
+      currentLine = null;
+      mapImg.src = 'images/lta-rail-map.png';
+      initStations([], 'Select a line to begin.');
+      clearOtherLineOverlays();
+      return;
+    }
+    currentLine = LINES.find(l => l.id === id);
+    mapImg.src = currentLine.image;
+    const data = STATION_DATA[id] || [];
+    initStations(data, `Loaded ${id} — ${data.length} stations`);
+    clearRoute();
+    clearDelayMarkers();
+    clearNoServiceMarkers();
+    clearFaultMarker();
+    clearOtherLineOverlays();
+    renderOtherLinesSidebar();
+    applyOverlayImg();
+  }
+
+  // ── Init station list ─────────────────────────────────
+  function initStations(data, msg) {
+    stations = data.map(s => ({ ...s }));
+    updated.clear();
+    currentIdx   = -1;
+    pendingClick = null;
+
+    rebuildUI();
+    resetSelection();
+    clearRoute();
+    if (document.getElementById('chkShowAll').checked) createAllMarkers();
+    setStatus(msg, 'ok');
+  }
+
+  function rebuildUI() {
+    // Dropdown
+    stationSelect.innerHTML = '<option value="">— Select station —</option>';
+    stations.forEach((s, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${s.id} — ${s.name}`;
+      stationSelect.appendChild(opt);
+    });
+
+    // Progress chips
+    progressBar.innerHTML = '';
+    stations.forEach((s, i) => {
+      const chip = document.createElement('span');
+      chip.id = `chip-${i}`;
+      chip.textContent = s.id;
+      chip.title = s.name;
+      chip.onclick = () => selectStation(i);
+      progressBar.appendChild(chip);
+    });
+
+    // Route, bus, shuttle & turn-around start selects
+    const selIds   = ['routeStart', 'routeEnd', 'busStart', 'busEnd', 'shuttleStart', 'shuttleEnd', 'taStart'];
+    const defaults = ['— Start Station —', '— End Station —', '— Bus Start —', '— Bus End —', '— Shuttle Start —', '— Shuttle End —', '— Station A —'];
+    selIds.forEach((id, k) => {
+      const sel = document.getElementById(id);
+      sel.innerHTML = `<option value="">${defaults[k]}</option>`;
+      stations.forEach((s, i) => {
+        const o = document.createElement('option');
+        o.value = i; o.textContent = `${s.id} — ${s.name}`;
+        sel.appendChild(o);
+      });
+    });
+    // taEnd is populated dynamically when taStart changes
+    document.getElementById('taEnd').innerHTML = '<option value="">— Station B —</option>';
+
+    populateDelaySelects();
+    populateNoServiceSelects();
+    populateFaultSelects();
+  }
+
+  // ── Station selection ─────────────────────────────────
+  function selectStation(idx) {
+    currentIdx = idx;
+    stationSelect.value = idx;
+    pendingClick = null;
+    if (svgClickDot) { svgClickDot.remove(); svgClickDot = null; }
+    infoClicked.textContent = '— (click map)';
+    btnSet.disabled = true;
+
+    const s = stations[idx];
+    infoStation.textContent = `${s.id} — ${s.name}`;
+    infoStored.textContent  = `x: ${s.x},  y: ${s.y}`;
+    infoStored.classList.remove('changed');
+
+    // Place SVG cross marker on selected station
+    if (svgActiveMarker) svgActiveMarker.remove();
+    svgActiveMarker = createSvgCross(s.x, s.y);
+    markerLayer.appendChild(svgActiveMarker);
+
+    // Highlight chips
+    document.querySelectorAll('.progress span').forEach((c, i) => {
+      c.classList.toggle('active', i === idx);
+    });
+
+    // Scroll chip into view
+    const chip = document.getElementById(`chip-${idx}`);
+    if (chip) chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+
+  function resetSelection() {
+    currentIdx = -1;
+    stationSelect.value = '';
+    pendingClick = null;
+    if (svgActiveMarker) { svgActiveMarker.remove(); svgActiveMarker = null; }
+    if (svgClickDot) { svgClickDot.remove(); svgClickDot = null; }
+    infoStation.textContent = '—';
+    infoStored.textContent  = '—';
+    infoClicked.textContent = '— (click map)';
+    btnSet.disabled = true;
+  }
+
+  stationSelect.addEventListener('change', () => {
+    if (stationSelect.value !== '') selectStation(Number(stationSelect.value));
+  });
+
+  // ── Map click ─────────────────────────────────────────
+  mapWrapper.addEventListener('click', e => {
+    document.getElementById('busTooltip').style.display = 'none';
+    if (!currentLine) return;
+    if (currentIdx === -1) return;
+    const rect = mapImg.getBoundingClientRect();
+    const imgX = Math.round((e.clientX - rect.left) / rect.width  * IMAGE_W);
+    const imgY = Math.round((e.clientY - rect.top)  / rect.height * IMAGE_H);
+
+    pendingClick = { x: imgX, y: imgY };
+    if (svgClickDot) svgClickDot.remove();
+    svgClickDot = createSvgDot(imgX, imgY);
+    markerLayer.appendChild(svgClickDot);
+    infoClicked.textContent = `x: ${imgX},  y: ${imgY}`;
+    btnSet.disabled = false;
+  });
+
+  // ── Set position ──────────────────────────────────────
+  function applyClick() {
+    if (!pendingClick || currentIdx === -1) return;
+    const s = stations[currentIdx];
+    s.x = pendingClick.x;
+    s.y = pendingClick.y;
+
+    updated.add(currentIdx);
+    const chip = document.getElementById(`chip-${currentIdx}`);
+    if (chip) chip.classList.add('updated');
+
+    // Move SVG active marker to updated position
+    if (svgActiveMarker) svgActiveMarker.setAttribute('transform', `translate(${s.x},${s.y})`);
+
+    // Sync show-all SVG marker if visible
+    const stnMkr = document.getElementById(`stnmkr-${currentIdx}`);
+    if (stnMkr) stnMkr.setAttribute('transform', `translate(${s.x},${s.y})`);
+
+    infoStored.textContent = `x: ${s.x},  y: ${s.y}`;
+    infoStored.classList.add('changed');
+
+    pendingClick = null;
+    if (svgClickDot) { svgClickDot.remove(); svgClickDot = null; }
+    infoClicked.textContent = '— (click map)';
+    btnSet.disabled = true;
+
+    setStatus(`✔ ${s.id} updated (${updated.size} changed)`, 'ok');
+  }
+
+  // ── Navigation ────────────────────────────────────────
+  function stepStation(dir) {
+    const next = currentIdx + dir;
+    if (next >= 0 && next < stations.length) selectStation(next);
+  }
+
+  // ── Load JSON via file input ──────────────────────────
+  document.getElementById('fileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const json = JSON.parse(ev.target.result);
+        const data = json.stations || json;
+        if (!Array.isArray(data)) throw new Error('No stations array');
+        const lineId = json.line || (currentLine && currentLine.id);
+        if (lineId) {
+          STATION_DATA[lineId] = data.map(s => ({ ...s }));
+        }
+        initStations(data, `Loaded from ${file.name}`);
+      } catch (err) {
+        setStatus('Failed to parse JSON: ' + err.message, 'err');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  // ── Export JSON ───────────────────────────────────────
+  function exportJSON() {
+    if (!currentLine) { setStatus('Select a line first.', 'err'); return; }
+    const stationsOut = stations.map(s => ({ id: s.id, name: s.name, x: s.x, y: s.y }));
+    const out = {
+      line:         currentLine.id,
+      name:         currentLine.name,
+      color:        currentLine.color,
+      image_width:  IMAGE_W,
+      image_height: IMAGE_H,
+      stations:     stationsOut
+    };
+    STATION_DATA[currentLine.id] = stationsOut.map(s => ({ ...s }));
+    const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = currentLine.json;
+    a.click();
+    setStatus(`Exported ${currentLine.json} — data also saved locally for next visit.`, 'ok');
+  }
+
+  // ── Show all points ───────────────────────────────────
+  function toggleShowAll() {
+    if (document.getElementById('chkShowAll').checked) {
+      createAllMarkers();
+    } else {
+      removeAllMarkers();
+    }
+  }
+
+  function createAllMarkers() {
+    removeAllMarkers();
+    stations.forEach((s, i) => {
+      const g = createSvgCross(s.x, s.y);
+      g.id = `stnmkr-${i}`;
+      markerLayer.appendChild(g);
+    });
+  }
+
+  function removeAllMarkers() {
+    markerLayer.querySelectorAll('[id^="stnmkr-"]').forEach(el => el.remove());
+  }
+
+  // ── Route & bus bridge ────────────────────────────────
+
+  // Sample the Catmull-Rom curve at `sps` points per segment
+  function sampleCatmullRom(pts, sps) {
+    if (pts.length < 2) return pts.slice();
+    const out = [];
+    for (let seg = 0; seg < pts.length - 1; seg++) {
+      const p0 = pts[Math.max(0, seg - 1)];
+      const p1 = pts[seg];
+      const p2 = pts[seg + 1];
+      const p3 = pts[Math.min(pts.length - 1, seg + 2)];
+      const n = seg === pts.length - 2 ? sps + 1 : sps;
+      for (let k = 0; k < n; k++) {
+        const t = k / sps, t2 = t * t, t3 = t2 * t;
+        out.push({
+          x: 0.5 * ((2*p1.x) + (-p0.x+p2.x)*t + (2*p0.x-5*p1.x+4*p2.x-p3.x)*t2 + (-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
+          y: 0.5 * ((2*p1.y) + (-p0.y+p2.y)*t + (2*p0.y-5*p1.y+4*p2.y-p3.y)*t2 + (-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
+        });
+      }
+    }
+    return out;
+  }
+
+  function catmullRomPath(pts) {
+    if (pts.length < 2) return '';
+    if (pts.length === 2)
+      return `M${pts[0].x},${pts[0].y} L${pts[1].x},${pts[1].y}`;
+    let d = `M${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[Math.min(pts.length - 1, i + 2)];
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+    return d;
+  }
+
+  function getRouteOrdered() {
+    const si = parseInt(document.getElementById('routeStart').value);
+    const ei = parseInt(document.getElementById('routeEnd').value);
+    if (isNaN(si) || isNaN(ei) || si === ei) return null;
+    const [from, to] = si <= ei ? [si, ei] : [ei, si];
+    const slice = stations.slice(from, to + 1);
+    return { ordered: si <= ei ? slice : [...slice].reverse(), si, ei, from, to };
+  }
+
+  function makeSvgPath(d, color, width) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const p = document.createElementNS(ns, 'path');
+    p.setAttribute('d', d);
+    p.setAttribute('fill', 'none');
+    p.setAttribute('stroke', color);
+    p.setAttribute('stroke-width', width);
+    p.setAttribute('stroke-linecap', 'round');
+    p.setAttribute('stroke-linejoin', 'round');
+    return p;
+  }
+
+  function drawRoute() {
+    const r = getRouteOrdered();
+    if (!r) { setStatus('Select different start and end stations.', 'err'); return; }
+    const color = document.getElementById('routeColor').value;
+    const layer = document.getElementById('routeLayer');
+    layer.innerHTML = '';
+    layer.appendChild(makeSvgPath(catmullRomPath(r.ordered), color, '3'));
+    setStatus(`Route: ${stations[r.si].id} → ${stations[r.ei].id} — ${r.to - r.from + 1} stations`, 'ok');
+  }
+
+  function getBusOrdered() {
+    const si = parseInt(document.getElementById('busStart').value);
+    const ei = parseInt(document.getElementById('busEnd').value);
+    if (isNaN(si) || isNaN(ei) || si === ei) return null;
+    const [from, to] = si <= ei ? [si, ei] : [ei, si];
+    const slice = stations.slice(from, to + 1);
+    return { ordered: si <= ei ? slice : [...slice].reverse(), si, ei, from, to };
+  }
+
+  function generateBusPoints() {
+    const r = getBusOrdered();
+    if (!r) { setStatus('Select different bus start and end stations.', 'err'); return; }
+
+    const offsetDist = parseFloat(document.getElementById('busOffset').value) || 20;
+    const color      = document.getElementById('busColor').value;
+    const rightSide  = document.getElementById('busSideRight').checked;
+    const ns = 'http://www.w3.org/2000/svg';
+    const SPS = 24; // samples per segment — higher = smoother true-parallel offset
+
+    // Sample the original Catmull-Rom curve densely
+    const curve = sampleCatmullRom(r.ordered, SPS);
+
+    // Offset every sample perpendicularly (right: (dy,-dx), left: (-dy,dx))
+    const offsetCurve = curve.map((p, i) => {
+      const prev = curve[Math.max(0, i - 1)];
+      const next = curve[Math.min(curve.length - 1, i + 1)];
+      const dx = next.x - prev.x;
+      const dy = next.y - prev.y;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      const nx = rightSide ?  dy / len : -dy / len;
+      const ny = rightSide ? -dx / len :  dx / len;
+      return { x: p.x + nx * offsetDist, y: p.y + ny * offsetDist };
+    });
+
+    // Build path as dense polyline — never crosses original
+    const d = 'M' + offsetCurve.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join('L');
+
+    const layer = document.getElementById('busLayer');
+    layer.innerHTML = '';
+    layer.appendChild(makeSvgPath(d, color, '4'));
+
+    // Circles at each station's position along the offset curve
+    const stationOffsets = r.ordered.map((s, i) =>
+      offsetCurve[Math.min(i * SPS, offsetCurve.length - 1)]
+    );
+
+    stationOffsets.forEach((op, i) => {
+      const s = r.ordered[i];
+      const c = document.createElementNS(ns, 'circle');
+      c.setAttribute('cx', op.x.toFixed(1));
+      c.setAttribute('cy', op.y.toFixed(1));
+      c.setAttribute('r', '4');
+      c.setAttribute('fill', color);
+      c.setAttribute('stroke', '#fff');
+      c.setAttribute('stroke-width', '2');
+      c.style.pointerEvents = 'all';
+      c.style.cursor = 'pointer';
+      c.addEventListener('click', e => {
+        e.stopPropagation();
+        showBusTooltip(e, s);
+      });
+      layer.appendChild(c);
+    });
+
+    busRouteData = {
+      line:         currentLine.id,
+      from:         stations[r.si].id,
+      to:           stations[r.ei].id,
+      color:        color,
+      offset:       offsetDist,
+      image_width:  IMAGE_W,
+      image_height: IMAGE_H,
+      points:       stationOffsets.map((op, i) => ({
+        id:   r.ordered[i].id,
+        name: r.ordered[i].name,
+        x:    Math.round(op.x * 100) / 100,
+        y:    Math.round(op.y * 100) / 100
+      }))
+    };
+
+    // Bus icon between bridging route and original line (offset toward original)
+    const iconDist = offsetDist * 0.5;
+    for (let i = 0; i < stationOffsets.length - 1; i++) {
+      const a = stationOffsets[i], b = stationOffsets[i + 1];
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const len = Math.sqrt(dx*dx + dy*dy) || 1;
+      // Offset toward original line (opposite direction of bus route offset)
+      const nx = rightSide ? -dy / len :  dy / len;
+      const ny = rightSide ?  dx / len : -dx / len;
+      const px = mx + nx * iconDist;
+      const py = my + ny * iconDist;
+      layer.appendChild(makeBusIcon(px, py));
+    }
+
+    setStatus(`Bus route: ${stations[r.si].id} → ${stations[r.ei].id} — ${r.ordered.length} points (offset ${offsetDist}px)`, 'ok');
+  }
+
+  function makeBusIcon(mx, my) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const g = document.createElementNS(ns, 'g');
+    g.setAttribute('transform', `translate(${mx},${my})`);
+    g.setAttribute('pointer-events', 'none');
+    const W = 10, H = 8, RX = 1.5;
+    const x0 = -W/2, y0 = -H - 2;
+    // Bus body
+    const body = document.createElementNS(ns, 'rect');
+    body.setAttribute('x', x0); body.setAttribute('y', y0);
+    body.setAttribute('width', W); body.setAttribute('height', H);
+    body.setAttribute('rx', RX); body.setAttribute('fill', '#2E7D32');
+    g.appendChild(body);
+    // Windscreen strip across top
+    const wind = document.createElementNS(ns, 'rect');
+    wind.setAttribute('x', x0 + 1); wind.setAttribute('y', y0 + 1);
+    wind.setAttribute('width', W - 2); wind.setAttribute('height', H * 0.35);
+    wind.setAttribute('rx', '0.8'); wind.setAttribute('fill', '#fff');
+    wind.setAttribute('opacity', '0.85');
+    g.appendChild(wind);
+    // Two windows below windscreen
+    [-W*0.22, W*0.22].forEach(wx => {
+      const win = document.createElementNS(ns, 'rect');
+      win.setAttribute('x', wx - W*0.18); win.setAttribute('y', y0 + H*0.45);
+      win.setAttribute('width', W*0.36); win.setAttribute('height', H*0.28);
+      win.setAttribute('rx', '0.5'); win.setAttribute('fill', '#fff');
+      win.setAttribute('opacity', '0.85');
+      g.appendChild(win);
+    });
+    // Two wheels
+    [-W*0.28, W*0.28].forEach(wx => {
+      const wh = document.createElementNS(ns, 'circle');
+      wh.setAttribute('cx', wx); wh.setAttribute('cy', y0 + H + 1.2);
+      wh.setAttribute('r', '1.8'); wh.setAttribute('fill', '#1B5E20');
+      g.appendChild(wh);
+    });
+    return g;
+  }
+
+  function showBusTooltip(e, s) {
+    const tooltip = document.getElementById('busTooltip');
+    const rect    = mapWrapper.getBoundingClientRect();
+    tooltip.textContent  = `${s.id} — ${s.name}`;
+    tooltip.style.left   = (e.clientX - rect.left) + 'px';
+    tooltip.style.top    = (e.clientY - rect.top)  + 'px';
+    tooltip.style.display = 'block';
+  }
+
+  function exportBusJSON() {
+    if (!busRouteData) { setStatus('Generate bus points first.', 'err'); return; }
+    const blob = new Blob([JSON.stringify(busRouteData, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `bus_${busRouteData.line}_${busRouteData.from}_${busRouteData.to}.json`;
+    a.click();
+    setStatus(`Exported bus_${busRouteData.line}_${busRouteData.from}_${busRouteData.to}.json`, 'ok');
+  }
+
+  function clearBusPoints() {
+    document.getElementById('busLayer').innerHTML = '';
+    document.getElementById('busTooltip').style.display = 'none';
+    busRouteData = null;
+  }
+
+  function clearRoute() {
+    document.getElementById('routeLayer').innerHTML      = '';
+    document.getElementById('busLayer').innerHTML        = '';
+    document.getElementById('shuttleLayer').innerHTML    = '';
+    document.getElementById('turnAroundLayer').innerHTML = '';
+    document.getElementById('busTooltip').style.display = 'none';
+    busRouteData     = null;
+    shuttleRouteData = null;
+    turnAroundData   = [];
+  }
+
+  // ── Shuttle Trains Route ──────────────────────────────
+
+  function getShuttleOrdered() {
+    const si = parseInt(document.getElementById('shuttleStart').value);
+    const ei = parseInt(document.getElementById('shuttleEnd').value);
+    if (isNaN(si) || isNaN(ei) || si === ei) return null;
+    const [from, to] = si <= ei ? [si, ei] : [ei, si];
+    const slice = stations.slice(from, to + 1);
+    return { ordered: si <= ei ? slice : [...slice].reverse(), si, ei, from, to };
+  }
+
+  function drawShuttleRoute() {
+    const r = getShuttleOrdered();
+    if (!r) { setStatus('Select different shuttle start and end stations.', 'err'); return; }
+
+    const offsetDist = parseFloat(document.getElementById('shuttleOffset').value) || 20;
+    const color      = document.getElementById('shuttleColor').value;
+    const rightSide  = document.getElementById('shuttleSideRight').checked;
+    const ns  = 'http://www.w3.org/2000/svg';
+    const SPS = 24;
+    const layer = document.getElementById('shuttleLayer');
+    layer.innerHTML = '';
+
+    // Dense sample then offset perpendicularly — same as bus route
+    const curve = sampleCatmullRom(r.ordered, SPS);
+    const offsetCurve = curve.map((p, i) => {
+      const prev = curve[Math.max(0, i - 1)];
+      const next = curve[Math.min(curve.length - 1, i + 1)];
+      const dx = next.x - prev.x;
+      const dy = next.y - prev.y;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      const nx = rightSide ?  dy / len : -dy / len;
+      const ny = rightSide ? -dx / len :  dx / len;
+      return { x: p.x + nx * offsetDist, y: p.y + ny * offsetDist };
+    });
+
+    const d = 'M' + offsetCurve.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join('L');
+    const pathEl = makeSvgPath(d, color, '3');
+    pathEl.setAttribute('stroke-dasharray', '8,5');
+    layer.appendChild(pathEl);
+
+    // Circles at each station's offset position
+    const stationOffsets = r.ordered.map((s, i) =>
+      offsetCurve[Math.min(i * SPS, offsetCurve.length - 1)]
+    );
+
+    stationOffsets.forEach((op, i) => {
+      const s = r.ordered[i];
+      const c = document.createElementNS(ns, 'circle');
+      c.setAttribute('cx', op.x.toFixed(1));
+      c.setAttribute('cy', op.y.toFixed(1));
+      c.setAttribute('r', '4');
+      c.setAttribute('fill', color);
+      c.setAttribute('stroke', '#fff');
+      c.setAttribute('stroke-width', '1.5');
+      c.style.pointerEvents = 'all';
+      c.style.cursor = 'pointer';
+      c.addEventListener('click', e => {
+        e.stopPropagation();
+        showBusTooltip(e, s);
+      });
+      layer.appendChild(c);
+    });
+
+    shuttleRouteData = {
+      line:         currentLine.id,
+      from:         stations[r.si].id,
+      to:           stations[r.ei].id,
+      color:        color,
+      offset:       offsetDist,
+      image_width:  IMAGE_W,
+      image_height: IMAGE_H,
+      points:       stationOffsets.map((op, i) => ({
+        id:   r.ordered[i].id,
+        name: r.ordered[i].name,
+        x:    Math.round(op.x * 100) / 100,
+        y:    Math.round(op.y * 100) / 100
+      }))
+    };
+
+    // Train icon between shuttle route and original line
+    const iconDist = offsetDist * 0.5;
+    for (let i = 0; i < stationOffsets.length - 1; i++) {
+      const a = stationOffsets[i], b = stationOffsets[i + 1];
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const len = Math.sqrt(dx*dx + dy*dy) || 1;
+      const nx = rightSide ? -dy / len :  dy / len;
+      const ny = rightSide ?  dx / len : -dx / len;
+      const px = mx + nx * iconDist;
+      const py = my + ny * iconDist;
+      layer.appendChild(makeTrainIcon(px, py));
+    }
+
+    setStatus(`Shuttle route: ${stations[r.si].id} → ${stations[r.ei].id} — ${r.ordered.length} points (offset ${offsetDist}px)`, 'ok');
+  }
+
+  function makeTrainIcon(mx, my) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const g = document.createElementNS(ns, 'g');
+    g.setAttribute('transform', `translate(${mx},${my})`);
+    g.setAttribute('pointer-events', 'none');
+    const W = 10, H = 9;
+    const x0 = -W/2, y0 = -H - 2;
+    // Train body
+    const body = document.createElementNS(ns, 'rect');
+    body.setAttribute('x', x0); body.setAttribute('y', y0);
+    body.setAttribute('width', W); body.setAttribute('height', H);
+    body.setAttribute('rx', '2'); body.setAttribute('fill', '#1565C0');
+    g.appendChild(body);
+    // Cab window strip across top
+    const cab = document.createElementNS(ns, 'rect');
+    cab.setAttribute('x', x0 + 1); cab.setAttribute('y', y0 + 1);
+    cab.setAttribute('width', W - 2); cab.setAttribute('height', H * 0.32);
+    cab.setAttribute('rx', '1'); cab.setAttribute('fill', '#fff');
+    cab.setAttribute('opacity', '0.9');
+    g.appendChild(cab);
+    // Two side windows
+    [-W*0.22, W*0.22].forEach(wx => {
+      const win = document.createElementNS(ns, 'rect');
+      win.setAttribute('x', wx - W*0.18); win.setAttribute('y', y0 + H*0.42);
+      win.setAttribute('width', W*0.36); win.setAttribute('height', H*0.28);
+      win.setAttribute('rx', '0.5'); win.setAttribute('fill', '#fff');
+      win.setAttribute('opacity', '0.85');
+      g.appendChild(win);
+    });
+    // Connector bar at bottom centre
+    const conn = document.createElementNS(ns, 'rect');
+    conn.setAttribute('x', '-1'); conn.setAttribute('y', y0 + H);
+    conn.setAttribute('width', '2'); conn.setAttribute('height', '2');
+    conn.setAttribute('fill', '#0D47A1');
+    g.appendChild(conn);
+    // Two wheels
+    [-W*0.28, W*0.28].forEach(wx => {
+      const wh = document.createElementNS(ns, 'circle');
+      wh.setAttribute('cx', wx); wh.setAttribute('cy', y0 + H + 2.5);
+      wh.setAttribute('r', '1.8'); wh.setAttribute('fill', '#0D47A1');
+      g.appendChild(wh);
+    });
+    return g;
+  }
+
+  function clearShuttleRoute() {
+    document.getElementById('shuttleLayer').innerHTML = '';
+    document.getElementById('busTooltip').style.display = 'none';
+    shuttleRouteData = null;
+  }
+
+  function exportShuttleJSON() {
+    if (!shuttleRouteData) { setStatus('Draw a shuttle route first.', 'err'); return; }
+    const blob = new Blob([JSON.stringify(shuttleRouteData, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `shuttle_${shuttleRouteData.line}_${shuttleRouteData.from}_${shuttleRouteData.to}.json`;
+    a.click();
+    setStatus(`Exported shuttle_${shuttleRouteData.line}_${shuttleRouteData.from}_${shuttleRouteData.to}.json`, 'ok');
+  }
+
+  // ── Turn Around ───────────────────────────────────────
+
+  // When start changes, restrict end to only the immediately adjacent station(s)
+  document.getElementById('taStart').addEventListener('change', function () {
+    const si     = parseInt(this.value);
+    const endSel = document.getElementById('taEnd');
+    endSel.innerHTML = '<option value="">— Station B —</option>';
+    if (isNaN(si) || !stations.length) return;
+    const adjacent = [];
+    if (si > 0)                   adjacent.push(si - 1);
+    if (si < stations.length - 1) adjacent.push(si + 1);
+    adjacent.forEach(i => {
+      const o = document.createElement('option');
+      o.value = i;
+      o.textContent = `${stations[i].id} — ${stations[i].name}`;
+      endSel.appendChild(o);
+    });
+    // Auto-select next station (preferred) or previous
+    endSel.value = si < stations.length - 1 ? si + 1 : si - 1;
+  });
+
+  function drawTurnAround() {
+    const si = parseInt(document.getElementById('taStart').value);
+    const ei = parseInt(document.getElementById('taEnd').value);
+    if (isNaN(si) || isNaN(ei) || si === ei) {
+      setStatus('Select adjacent stations for turn around.', 'err'); return;
+    }
+
+    const color = document.getElementById('taColor').value;
+    const halfW = 12;
+    const thick = 5;
+    const ns    = 'http://www.w3.org/2000/svg';
+
+    const A = stations[si];
+    const B = stations[ei];
+
+    const mx    = (A.x + B.x) / 2;
+    const my    = (A.y + B.y) / 2;
+    const dx    = B.x - A.x;
+    const dy    = B.y - A.y;
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    const layer = document.getElementById('turnAroundLayer');
+    // Append — do NOT clear, so multiple blocks can coexist
+
+    const block = document.createElementNS(ns, 'rect');
+    block.setAttribute('x',      (mx - halfW).toFixed(1));
+    block.setAttribute('y',      (my - thick / 2).toFixed(1));
+    block.setAttribute('width',  (halfW * 2).toFixed(1));
+    block.setAttribute('height', thick.toFixed(1));
+    block.setAttribute('rx', Math.min(2, thick / 2).toFixed(1));
+    block.setAttribute('fill', color);
+    block.setAttribute('transform', `rotate(${(angle + 90).toFixed(2)},${mx.toFixed(1)},${my.toFixed(1)})`);
+    block.style.pointerEvents = 'all';
+    block.style.cursor = 'pointer';
+    block.addEventListener('click', e => {
+      e.stopPropagation();
+      showBusTooltip(e, { id: 'TA', name: `Turn Around (${A.id} – ${B.id})` });
+    });
+    layer.appendChild(block);
+
+    const dot = document.createElementNS(ns, 'circle');
+    dot.setAttribute('cx', mx.toFixed(1));
+    dot.setAttribute('cy', my.toFixed(1));
+    dot.setAttribute('r', '2');
+    dot.setAttribute('fill', '#fff');
+    dot.setAttribute('pointer-events', 'none');
+    layer.appendChild(dot);
+
+    turnAroundData.push({
+      from:  A.id,
+      to:    B.id,
+      color: color,
+      point: { x: Math.round(mx * 100) / 100, y: Math.round(my * 100) / 100 }
+    });
+
+    setStatus(`Turn around ${A.id}–${B.id} added (${turnAroundData.length} total)`, 'ok');
+  }
+
+  function clearTurnAround() {
+    document.getElementById('turnAroundLayer').innerHTML = '';
+    document.getElementById('busTooltip').style.display = 'none';
+    turnAroundData = [];
+  }
+
+  function exportTurnAroundJSON() {
+    if (!turnAroundData.length) { setStatus('Draw at least one turn around first.', 'err'); return; }
+    const out = {
+      line:         currentLine.id,
+      image_width:  IMAGE_W,
+      image_height: IMAGE_H,
+      turn_arounds: turnAroundData
+    };
+    const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `turnaround_${currentLine.id}.json`;
+    a.click();
+    setStatus(`Exported turnaround_${currentLine.id}.json — ${turnAroundData.length} blocks`, 'ok');
+  }
+
+  document.getElementById('routeColor').addEventListener('input', () => {
+    const color = document.getElementById('routeColor').value;
+    document.querySelectorAll('#routeLayer path').forEach(p => p.setAttribute('stroke', color));
+  });
+
+  document.getElementById('busColor').addEventListener('input', () => {
+    const color = document.getElementById('busColor').value;
+    document.querySelectorAll('#busLayer path').forEach(p => p.setAttribute('stroke', color));
+    document.querySelectorAll('#busLayer circle').forEach(c => c.setAttribute('fill', color));
+  });
+
+  document.getElementById('shuttleColor').addEventListener('input', () => {
+    const color = document.getElementById('shuttleColor').value;
+    document.querySelectorAll('#shuttleLayer path').forEach(p => p.setAttribute('stroke', color));
+    document.querySelectorAll('#shuttleLayer circle').forEach(c => c.setAttribute('fill', color));
+  });
+
+  document.getElementById('taColor').addEventListener('input', () => {
+    const color = document.getElementById('taColor').value;
+    document.querySelectorAll('#turnAroundLayer rect').forEach(r => r.setAttribute('fill', color));
+  });
+
+  // ── Status ────────────────────────────────────────────
+  function setStatus(msg, type) {
+    statusBar.textContent = msg;
+    statusBar.className = 'status-bar' + (type ? ' ' + type : '');
+  }
+
+  setStatus('Ready — select a line to begin.', 'ok');
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "line": "SK",
+  "name": "Sengkang LRT",
+  "color": "#748477",
+  "image_width": 985,
+  "image_height": 735,
+  "stations": [
+    { "id": "STC",  "name": "Sengkang",    "x": 678, "y": 178 },
+    { "id": "SW1",  "name": "Cheng Lim",   "x": 619, "y": 176 },
+    { "id": "SW2",  "name": "Farmway",     "x": 618, "y": 160 },
+    { "id": "SW3",  "name": "Kupang",      "x": 613, "y": 168 },
+    { "id": "SW4",  "name": "Thanggam",    "x": 618, "y": 178 },
+    { "id": "SW5",  "name": "Fernvale",    "x": 628, "y": 182 },
+    { "id": "SW6",  "name": "Layar",       "x": 637, "y": 178 },
+    { "id": "SW7",  "name": "Tongkang",    "x": 641, "y": 168 },
+    { "id": "SW8",  "name": "Renjong",     "x": 635, "y": 160 },
+    { "id": "SE1",  "name": "Compassvale", "x": 650, "y": 168 },
+    { "id": "SE2",  "name": "Rumbia",      "x": 654, "y": 158 },
+    { "id": "SE3",  "name": "Bakau",       "x": 665, "y": 161 },
+    { "id": "SE4",  "name": "Kangkar",     "x": 659, "y": 170 },
+    { "id": "SE5",  "name": "Ranggung",    "x": 652, "y": 177 }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "line": "NSL",
+  "name": "North-South Line",
+  "color": "#D42E12",
+  "image_width": 985,
+  "image_height": 735,
+  "stations": [
+    {
+      "id": "NS1",
+      "name": "Jurong East",
+      "x": 173,
+      "y": 437
+    },
+    {
+      "id": "NS2",
+      "name": "Bukit Batok",
+      "x": 173,
+      "y": 373
+    },
+    {
+      "id": "NS3",
+      "name": "Bukit Gombak",
+      "x": 172,
+      "y": 329
+    },
+    {
+      "id": "NS4",
+      "name": "Choa Chu Kang",
+      "x": 174,
+      "y": 279
+    },
+    {
+      "id": "NS5",
+      "name": "Yew Tee",
+      "x": 173,
+      "y": 224
+    },
+    {
+      "id": "NS7",
+      "name": "Kranji",
+      "x": 173,
+      "y": 174
+    },
+    {
+      "id": "NS8",
+      "name": "Marsiling",
+      "x": 201,
+      "y": 118
+    },
+    {
+      "id": "NS9",
+      "name": "Woodlands",
+      "x": 270,
+      "y": 105
+    },
+    {
+      "id": "NS10",
+      "name": "Admiralty",
+      "x": 313,
+      "y": 106
+    },
+    {
+      "id": "NS11",
+      "name": "Sembawang",
+      "x": 353,
+      "y": 103
+    },
+    {
+      "id": "NS12",
+      "name": "Canberra",
+      "x": 392,
+      "y": 104
+    },
+    {
+      "id": "NS13",
+      "name": "Yishun",
+      "x": 435,
+      "y": 118
+    },
+    {
+      "id": "NS14",
+      "name": "Khatib",
+      "x": 458,
+      "y": 142
+    },
+    {
+      "id": "NS15",
+      "name": "Yio Chu Kang",
+      "x": 462,
+      "y": 174
+    },
+    {
+      "id": "NS16",
+      "name": "Ang Mo Kio",
+      "x": 463,
+      "y": 206
+    },
+    {
+      "id": "NS17",
+      "name": "Bishan",
+      "x": 462,
+      "y": 240
+    },
+    {
+      "id": "NS18",
+      "name": "Braddell",
+      "x": 461,
+      "y": 262
+    },
+    {
+      "id": "NS19",
+      "name": "Toa Payoh",
+      "x": 462,
+      "y": 290
+    },
+    {
+      "id": "NS20",
+      "name": "Novena",
+      "x": 446,
+      "y": 324
+    },
+    {
+      "id": "NS21",
+      "name": "Newton",
+      "x": 422,
+      "y": 349
+    },
+    {
+      "id": "NS22",
+      "name": "Orchard",
+      "x": 393,
+      "y": 392
+    },
+    {
+      "id": "NS23",
+      "name": "Somerset",
+      "x": 417,
+      "y": 424
+    },
+    {
+      "id": "NS24",
+      "name": "Dhoby Ghaut",
+      "x": 457,
+      "y": 464
+    },
+    {
+      "id": "NS25",
+      "name": "City Hall",
+      "x": 522,
+      "y": 534
+    },
+    {
+      "id": "NS26",
+      "name": "Raffles Place",
+      "x": 522,
+      "y": 563
+    },
+    {
+      "id": "NS27",
+      "name": "Marina Bay",
+      "x": 530,
+      "y": 607
+    },
+    {
+      "id": "NS28",
+      "name": "Marina South Pier",
+      "x": 560,
+      "y": 633
+    }
+  ]
+}

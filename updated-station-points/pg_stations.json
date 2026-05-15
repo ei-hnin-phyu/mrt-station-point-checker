@@ -1,0 +1,24 @@
+{
+  "line": "PG",
+  "name": "Punggol LRT",
+  "color": "#748477",
+  "image_width": 985,
+  "image_height": 735,
+  "stations": [
+    { "id": "PTC",  "name": "Punggol",        "x": 737, "y": 132 },
+    { "id": "PE1",  "name": "Cove",           "x": 725, "y": 84  },
+    { "id": "PE2",  "name": "Meridian",       "x": 719, "y": 80  },
+    { "id": "PE3",  "name": "Coral Edge",     "x": 715, "y": 88  },
+    { "id": "PE4",  "name": "Riviera",        "x": 718, "y": 97  },
+    { "id": "PE5",  "name": "Kadaloor",       "x": 721, "y": 106 },
+    { "id": "PE6",  "name": "Oasis",          "x": 727, "y": 106 },
+    { "id": "PE7",  "name": "Damai",          "x": 731, "y": 97  },
+    { "id": "PW1",  "name": "Sam Kee",        "x": 750, "y": 88  },
+    { "id": "PW2",  "name": "Teck Lee",       "x": 757, "y": 80  },
+    { "id": "PW3",  "name": "Punggol Point",  "x": 770, "y": 79  },
+    { "id": "PW4",  "name": "Samudera",       "x": 744, "y": 80  },
+    { "id": "PW5",  "name": "Nibong",         "x": 741, "y": 98  },
+    { "id": "PW6",  "name": "Sumang",         "x": 750, "y": 108 },
+    { "id": "PW7",  "name": "Soo Teck",       "x": 757, "y": 116 }
+  ]
+}

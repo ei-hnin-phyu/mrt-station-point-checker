@@ -1,0 +1,219 @@
+{
+  "line": "EWL",
+  "name": "East-West Line",
+  "color": "#009645",
+  "image_width": 985,
+  "image_height": 735,
+  "stations": [
+    {
+      "id": "EW33",
+      "name": "Tuas Link",
+      "x": 72,
+      "y": 239
+    },
+    {
+      "id": "EW32",
+      "name": "Tuas West Road",
+      "x": 70,
+      "y": 265
+    },
+    {
+      "id": "EW31",
+      "name": "Tuas Crescent",
+      "x": 71,
+      "y": 292
+    },
+    {
+      "id": "EW30",
+      "name": "Gul Circle",
+      "x": 72,
+      "y": 318
+    },
+    {
+      "id": "EW29",
+      "name": "Joo Koon",
+      "x": 71,
+      "y": 344
+    },
+    {
+      "id": "EW28",
+      "name": "Pioneer",
+      "x": 71,
+      "y": 371
+    },
+    {
+      "id": "EW27",
+      "name": "Boon Lay",
+      "x": 71,
+      "y": 397
+    },
+    {
+      "id": "EW26",
+      "name": "Lakeside",
+      "x": 102,
+      "y": 429
+    },
+    {
+      "id": "EW25",
+      "name": "Chinese Garden",
+      "x": 136,
+      "y": 430
+    },
+    {
+      "id": "EW24",
+      "name": "Jurong East",
+      "x": 181,
+      "y": 430
+    },
+    {
+      "id": "EW23",
+      "name": "Clementi",
+      "x": 217,
+      "y": 429
+    },
+    {
+      "id": "EW22",
+      "name": "Dover",
+      "x": 249,
+      "y": 429
+    },
+    {
+      "id": "EW21",
+      "name": "Buona Vista",
+      "x": 290,
+      "y": 428
+    },
+    {
+      "id": "EW20",
+      "name": "Commonwealth",
+      "x": 310,
+      "y": 448
+    },
+    {
+      "id": "EW19",
+      "name": "Queenstown",
+      "x": 329,
+      "y": 465
+    },
+    {
+      "id": "EW18",
+      "name": "Redhill",
+      "x": 351,
+      "y": 487
+    },
+    {
+      "id": "EW17",
+      "name": "Tiong Bahru",
+      "x": 372,
+      "y": 508
+    },
+    {
+      "id": "EW16",
+      "name": "Outram Park",
+      "x": 395,
+      "y": 530
+    },
+    {
+      "id": "EW15",
+      "name": "Tanjong Pagar",
+      "x": 440,
+      "y": 572
+    },
+    {
+      "id": "EW14",
+      "name": "Raffles Place",
+      "x": 532,
+      "y": 559
+    },
+    {
+      "id": "EW13",
+      "name": "City Hall",
+      "x": 531,
+      "y": 530
+    },
+    {
+      "id": "EW12",
+      "name": "Bugis",
+      "x": 569,
+      "y": 480
+    },
+    {
+      "id": "EW11",
+      "name": "Lavender",
+      "x": 600,
+      "y": 456
+    },
+    {
+      "id": "EW10",
+      "name": "Kallang",
+      "x": 621,
+      "y": 435
+    },
+    {
+      "id": "EW9",
+      "name": "Aljunied",
+      "x": 640,
+      "y": 414
+    },
+    {
+      "id": "EW8",
+      "name": "Paya Lebar",
+      "x": 662,
+      "y": 390
+    },
+    {
+      "id": "EW7",
+      "name": "Eunos",
+      "x": 698,
+      "y": 359
+    },
+    {
+      "id": "EW6",
+      "name": "Kembangan",
+      "x": 724,
+      "y": 331
+    },
+    {
+      "id": "EW5",
+      "name": "Bedok",
+      "x": 770,
+      "y": 308
+    },
+    {
+      "id": "EW4",
+      "name": "Tanah Merah",
+      "x": 823,
+      "y": 308
+    },
+    {
+      "id": "EW3",
+      "name": "Simei",
+      "x": 834,
+      "y": 289
+    },
+    {
+      "id": "EW2",
+      "name": "Tampines",
+      "x": 834,
+      "y": 263
+    },
+    {
+      "id": "EW1",
+      "name": "Pasir Ris",
+      "x": 835,
+      "y": 236
+    },
+    {
+      "id": "CG1",
+      "name": "Expo",
+      "x": 826,
+      "y": 350
+    },
+    {
+      "id": "CG2",
+      "name": "Changi Airport",
+      "x": 900,
+      "y": 360
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "line": "NEL",
+  "name": "North East Line",
+  "color": "#9900AA",
+  "image_width": 985,
+  "image_height": 735,
+  "stations": [
+    {
+      "id": "NE1",
+      "name": "HarbourFront",
+      "x": 399,
+      "y": 606
+    },
+    {
+      "id": "NE3",
+      "name": "Outram Park",
+      "x": 410,
+      "y": 528
+    },
+    {
+      "id": "NE4",
+      "name": "Chinatown",
+      "x": 429,
+      "y": 505
+    },
+    {
+      "id": "NE5",
+      "name": "Clarke Quay",
+      "x": 452,
+      "y": 487
+    },
+    {
+      "id": "NE6",
+      "name": "Dhoby Ghaut",
+      "x": 468,
+      "y": 458
+    },
+    {
+      "id": "NE7",
+      "name": "Little India",
+      "x": 486,
+      "y": 399
+    },
+    {
+      "id": "NE8",
+      "name": "Farrer Park",
+      "x": 494,
+      "y": 369
+    },
+    {
+      "id": "NE9",
+      "name": "Boon Keng",
+      "x": 493,
+      "y": 342
+    },
+    {
+      "id": "NE10",
+      "name": "Potong Pasir",
+      "x": 510,
+      "y": 315
+    },
+    {
+      "id": "NE11",
+      "name": "Woodleigh",
+      "x": 537,
+      "y": 288
+    },
+    {
+      "id": "NE12",
+      "name": "Serangoon",
+      "x": 559,
+      "y": 258
+    },
+    {
+      "id": "NE13",
+      "name": "Kovan",
+      "x": 590,
+      "y": 237
+    },
+    {
+      "id": "NE14",
+      "name": "Hougang",
+      "x": 611,
+      "y": 216
+    },
+    {
+      "id": "NE15",
+      "name": "Buangkok",
+      "x": 629,
+      "y": 197
+    },
+    {
+      "id": "NE16",
+      "name": "Sengkang",
+      "x": 642,
+      "y": 179
+    },
+    {
+      "id": "NE17",
+      "name": "Punggol",
+      "x": 685,
+      "y": 134
+    },
+    {
+      "id": "NE18",
+      "name": "Punggol Coast",
+      "x": 709,
+      "y": 115
+    }
+  ]
+}

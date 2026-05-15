@@ -1,0 +1,189 @@
+{
+  "line": "CCL",
+  "name": "Circle Line",
+  "color": "#FA9E0D",
+  "image_width": 985,
+  "image_height": 735,
+  "stations": [
+    {
+      "id": "CC1",
+      "name": "Dhoby Ghaut",
+      "x": 483,
+      "y": 459
+    },
+    {
+      "id": "CC2",
+      "name": "Bras Basah",
+      "x": 530,
+      "y": 487
+    },
+    {
+      "id": "CC3",
+      "name": "Esplanade",
+      "x": 573,
+      "y": 530
+    },
+    {
+      "id": "CC4",
+      "name": "Promenade",
+      "x": 636,
+      "y": 545
+    },
+    {
+      "id": "CC5",
+      "name": "Nicoll Highway",
+      "x": 653,
+      "y": 512
+    },
+    {
+      "id": "CC6",
+      "name": "Stadium",
+      "x": 663,
+      "y": 486
+    },
+    {
+      "id": "CC7",
+      "name": "Mountbatten",
+      "x": 670,
+      "y": 455
+    },
+    {
+      "id": "CC8",
+      "name": "Dakota",
+      "x": 672,
+      "y": 425
+    },
+    {
+      "id": "CC9",
+      "name": "Paya Lebar",
+      "x": 675,
+      "y": 390
+    },
+    {
+      "id": "CC10",
+      "name": "MacPherson",
+      "x": 660,
+      "y": 348
+    },
+    {
+      "id": "CC11",
+      "name": "Tai Seng",
+      "x": 633,
+      "y": 314
+    },
+    {
+      "id": "CC12",
+      "name": "Bartley",
+      "x": 607,
+      "y": 286
+    },
+    {
+      "id": "CC13",
+      "name": "Serangoon",
+      "x": 575,
+      "y": 260
+    },
+    {
+      "id": "CC14",
+      "name": "Lorong Chuan",
+      "x": 520,
+      "y": 244
+    },
+    {
+      "id": "CC15",
+      "name": "Bishan",
+      "x": 470,
+      "y": 239
+    },
+    {
+      "id": "CC16",
+      "name": "Marymount",
+      "x": 413,
+      "y": 248
+    },
+    {
+      "id": "CC17",
+      "name": "Caldecott",
+      "x": 370,
+      "y": 266
+    },
+    {
+      "id": "CC19",
+      "name": "Botanic Gardens",
+      "x": 311,
+      "y": 318
+    },
+    {
+      "id": "CC20",
+      "name": "Farrer Road",
+      "x": 298,
+      "y": 355
+    },
+    {
+      "id": "CC21",
+      "name": "Holland Village",
+      "x": 287,
+      "y": 388
+    },
+    {
+      "id": "CC22",
+      "name": "Buona Vista",
+      "x": 274,
+      "y": 430
+    },
+    {
+      "id": "CC23",
+      "name": "one-north",
+      "x": 283,
+      "y": 457
+    },
+    {
+      "id": "CC24",
+      "name": "Kent Ridge",
+      "x": 290,
+      "y": 486
+    },
+    {
+      "id": "CC25",
+      "name": "Haw Par Villa",
+      "x": 301,
+      "y": 513
+    },
+    {
+      "id": "CC26",
+      "name": "Pasir Panjang",
+      "x": 314,
+      "y": 537
+    },
+    {
+      "id": "CC27",
+      "name": "Labrador Park",
+      "x": 333,
+      "y": 560
+    },
+    {
+      "id": "CC28",
+      "name": "Telok Blangah",
+      "x": 358,
+      "y": 581
+    },
+    {
+      "id": "CC29",
+      "name": "HarbourFront",
+      "x": 386,
+      "y": 608
+    },
+    {
+      "id": "CE1",
+      "name": "Bayfront",
+      "x": 498,
+      "y": 582
+    },
+    {
+      "id": "CE2",
+      "name": "Marina Bay",
+      "x": 511,
+      "y": 610
+    }
+  ]
+}

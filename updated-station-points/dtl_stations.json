@@ -1,0 +1,231 @@
+{
+  "line": "DTL",
+  "name": "Downtown Line",
+  "color": "#005EC4",
+  "image_width": 985,
+  "image_height": 735,
+  "stations": [
+    {
+      "id": "DT1",
+      "name": "Bukit Panjang",
+      "x": 239,
+      "y": 204
+    },
+    {
+      "id": "DT2",
+      "name": "Cashew",
+      "x": 239,
+      "y": 219
+    },
+    {
+      "id": "DT3",
+      "name": "Hillview",
+      "x": 240,
+      "y": 234
+    },
+    {
+      "id": "DT4",
+      "name": "Hume",
+      "x": 239,
+      "y": 250
+    },
+    {
+      "id": "DT5",
+      "name": "Beauty World",
+      "x": 240,
+      "y": 265
+    },
+    {
+      "id": "DT6",
+      "name": "King Albert Park",
+      "x": 240,
+      "y": 280
+    },
+    {
+      "id": "DT7",
+      "name": "Sixth Avenue",
+      "x": 239,
+      "y": 295
+    },
+    {
+      "id": "DT8",
+      "name": "Tan Kah Kee",
+      "x": 272,
+      "y": 318
+    },
+    {
+      "id": "DT9",
+      "name": "Botanic Gardens",
+      "x": 326,
+      "y": 318
+    },
+    {
+      "id": "DT10",
+      "name": "Stevens",
+      "x": 370,
+      "y": 316
+    },
+    {
+      "id": "DT11",
+      "name": "Newton",
+      "x": 443,
+      "y": 348
+    },
+    {
+      "id": "DT12",
+      "name": "Little India",
+      "x": 503,
+      "y": 399
+    },
+    {
+      "id": "DT13",
+      "name": "Rochor",
+      "x": 524,
+      "y": 426
+    },
+    {
+      "id": "DT14",
+      "name": "Bugis",
+      "x": 584,
+      "y": 481
+    },
+    {
+      "id": "DT15",
+      "name": "Promenade",
+      "x": 622,
+      "y": 544
+    },
+    {
+      "id": "DT16",
+      "name": "Bayfront",
+      "x": 583,
+      "y": 581
+    },
+    {
+      "id": "DT17",
+      "name": "Downtown",
+      "x": 553,
+      "y": 591
+    },
+    {
+      "id": "DT18",
+      "name": "Telok Ayer",
+      "x": 497,
+      "y": 559
+    },
+    {
+      "id": "DT19",
+      "name": "Chinatown",
+      "x": 445,
+      "y": 504
+    },
+    {
+      "id": "DT20",
+      "name": "Fort Canning",
+      "x": 435,
+      "y": 473
+    },
+    {
+      "id": "DT21",
+      "name": "Bencoolen",
+      "x": 538,
+      "y": 463
+    },
+    {
+      "id": "DT22",
+      "name": "Jalan Besar",
+      "x": 561,
+      "y": 439
+    },
+    {
+      "id": "DT23",
+      "name": "Bendemeer",
+      "x": 592,
+      "y": 410
+    },
+    {
+      "id": "DT24",
+      "name": "Geylang Bahru",
+      "x": 612,
+      "y": 389
+    },
+    {
+      "id": "DT25",
+      "name": "Mattar",
+      "x": 632,
+      "y": 369
+    },
+    {
+      "id": "DT26",
+      "name": "MacPherson",
+      "x": 648,
+      "y": 347
+    },
+    {
+      "id": "DT27",
+      "name": "Ubi",
+      "x": 679,
+      "y": 324
+    },
+    {
+      "id": "DT28",
+      "name": "Kaki Bukit",
+      "x": 703,
+      "y": 301
+    },
+    {
+      "id": "DT29",
+      "name": "Bedok North",
+      "x": 724,
+      "y": 280
+    },
+    {
+      "id": "DT30",
+      "name": "Bedok Reservoir",
+      "x": 763,
+      "y": 272
+    },
+    {
+      "id": "DT31",
+      "name": "Tampines West",
+      "x": 801,
+      "y": 273
+    },
+    {
+      "id": "DT32",
+      "name": "Tampines",
+      "x": 852,
+      "y": 272
+    },
+    {
+      "id": "DT33",
+      "name": "Tampines East",
+      "x": 879,
+      "y": 292
+    },
+    {
+      "id": "DT34",
+      "name": "Upper Changi",
+      "x": 878,
+      "y": 310
+    },
+    {
+      "id": "DT35",
+      "name": "Expo",
+      "x": 886,
+      "y": 341
+    },
+    {
+      "id": "DT36",
+      "name": "Xilin",
+      "x": 873,
+      "y": 367
+    },
+    {
+      "id": "DT37",
+      "name": "Sungei Bedok",
+      "x": 863,
+      "y": 387
+    }
+  ]
+}

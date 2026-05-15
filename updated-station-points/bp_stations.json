@@ -1,0 +1,23 @@
+{
+  "line": "BP",
+  "name": "Bukit Panjang LRT",
+  "color": "#748477",
+  "image_width": 985,
+  "image_height": 735,
+  "stations": [
+    { "id": "BP1",  "name": "Bukit Panjang",      "x": 244, "y": 197 },
+    { "id": "BP2",  "name": "South View",          "x": 212, "y": 215 },
+    { "id": "BP3",  "name": "Keat Hong",           "x": 193, "y": 234 },
+    { "id": "BP4",  "name": "Teck Whye",           "x": 184, "y": 214 },
+    { "id": "BP5",  "name": "Phoenix",             "x": 233, "y": 188 },
+    { "id": "BP6",  "name": "Petir",               "x": 246, "y": 155 },
+    { "id": "BP7",  "name": "Pending",             "x": 231, "y": 155 },
+    { "id": "BP8",  "name": "Bangkit",             "x": 221, "y": 155 },
+    { "id": "BP9",  "name": "Fajar",               "x": 225, "y": 130 },
+    { "id": "BP10", "name": "Segar",               "x": 213, "y": 130 },
+    { "id": "BP11", "name": "Jelapang",            "x": 206, "y": 154 },
+    { "id": "BP12", "name": "Senja",               "x": 232, "y": 165 },
+    { "id": "BP13", "name": "Ten Mile Junction",   "x": 211, "y": 175 },
+    { "id": "BP14", "name": "Choa Chu Kang",       "x": 158, "y": 295 }
+  ]
+}
