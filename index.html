@@ -648,23 +648,37 @@
     const ei = parseInt(document.getElementById('delayEnd').value);
     if (isNaN(si) || isNaN(ei)) { setStatus('Select start and end stations.', 'err'); return; }
     const lo = Math.min(si, ei), hi = Math.max(si, ei);
+    const nsi = parseInt(document.getElementById('noSvcStart').value);
+    const nei = parseInt(document.getElementById('noSvcEnd').value);
+    const nsLo = isNaN(nsi) || isNaN(nei) ? null : Math.min(nsi, nei);
+    const nsHi = isNaN(nsi) || isNaN(nei) ? null : Math.max(nsi, nei);
     delayLayer.innerHTML = '';
     for (let i = lo; i <= hi; i++) {
       const s = stations[i];
       if (!s) continue;
+      if (nsLo !== null && i >= nsLo && i <= nsHi) continue;
       const g = document.createElementNS(SVGNS, 'g');
       g.setAttribute('transform', `translate(${s.x},${s.y})`);
       g.setAttribute('pointer-events', 'none');
-      const sz = 5;
-      [[-sz,-sz,sz,sz],[sz,-sz,-sz,sz]].forEach(([x1,y1,x2,y2]) => {
-        const ln = document.createElementNS(SVGNS, 'line');
-        ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
-        ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
-        ln.setAttribute('stroke','#000');
-        ln.setAttribute('stroke-width','2.5');
-        ln.setAttribute('stroke-linecap','round');
-        g.appendChild(ln);
-      });
+      const sz = 6;
+      const tri = document.createElementNS(SVGNS, 'polygon');
+      tri.setAttribute('points', `0,${-sz} ${-sz},${sz*0.6} ${sz},${sz*0.6}`);
+      tri.setAttribute('fill', '#FFCC00');
+      tri.setAttribute('stroke', '#000');
+      tri.setAttribute('stroke-width', '0.8');
+      g.appendChild(tri);
+      const dot = document.createElementNS(SVGNS, 'circle');
+      dot.setAttribute('cx', '0'); dot.setAttribute('cy', `${sz*0.35}`);
+      dot.setAttribute('r', '0.8');
+      dot.setAttribute('fill', '#000');
+      g.appendChild(dot);
+      const bar = document.createElementNS(SVGNS, 'line');
+      bar.setAttribute('x1', '0'); bar.setAttribute('y1', `${-sz*0.55}`);
+      bar.setAttribute('x2', '0'); bar.setAttribute('y2', `${sz*0.1}`);
+      bar.setAttribute('stroke', '#000');
+      bar.setAttribute('stroke-width', '1.2');
+      bar.setAttribute('stroke-linecap', 'round');
+      g.appendChild(bar);
       delayLayer.appendChild(g);
     }
     setStatus(`Delay markers: ${stations[lo].id} → ${stations[hi].id}`, 'ok');
@@ -708,15 +722,46 @@
       const g = document.createElementNS(SVGNS, 'g');
       g.setAttribute('transform', `translate(${s.x},${s.y})`);
       g.setAttribute('pointer-events', 'none');
+      const sz = 5;
+      [[-sz,-sz,sz,sz],[sz,-sz,-sz,sz]].forEach(([x1,y1,x2,y2]) => {
+        const ln = document.createElementNS(SVGNS, 'line');
+        ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
+        ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
+        ln.setAttribute('stroke','#000');
+        ln.setAttribute('stroke-width','2.5');
+        ln.setAttribute('stroke-linecap','round');
+        g.appendChild(ln);
+      });
+      noServiceLayer.appendChild(g);
+    }
+    setStatus(`No-service markers: ${stations[lo].id} → ${stations[hi].id}`, 'ok');
+    refreshDelayMarkers();
+  }
+
+  function refreshDelayMarkers() {
+    const si = parseInt(document.getElementById('delayStart').value);
+    const ei = parseInt(document.getElementById('delayEnd').value);
+    if (isNaN(si) || isNaN(ei)) return;
+    const lo = Math.min(si, ei), hi = Math.max(si, ei);
+    const nsi = parseInt(document.getElementById('noSvcStart').value);
+    const nei = parseInt(document.getElementById('noSvcEnd').value);
+    const nsLo = isNaN(nsi) || isNaN(nei) ? null : Math.min(nsi, nei);
+    const nsHi = isNaN(nsi) || isNaN(nei) ? null : Math.max(nsi, nei);
+    delayLayer.innerHTML = '';
+    for (let i = lo; i <= hi; i++) {
+      const s = stations[i];
+      if (!s) continue;
+      if (nsLo !== null && i >= nsLo && i <= nsHi) continue;
+      const g = document.createElementNS(SVGNS, 'g');
+      g.setAttribute('transform', `translate(${s.x},${s.y})`);
+      g.setAttribute('pointer-events', 'none');
       const sz = 6;
-      // Warning triangle (point up)
       const tri = document.createElementNS(SVGNS, 'polygon');
       tri.setAttribute('points', `0,${-sz} ${-sz},${sz*0.6} ${sz},${sz*0.6}`);
       tri.setAttribute('fill', '#FFCC00');
       tri.setAttribute('stroke', '#000');
       tri.setAttribute('stroke-width', '0.8');
       g.appendChild(tri);
-      // Exclamation mark: bar on top, dot below
       const dot = document.createElementNS(SVGNS, 'circle');
       dot.setAttribute('cx', '0'); dot.setAttribute('cy', `${sz*0.35}`);
       dot.setAttribute('r', '0.8');
@@ -729,9 +774,8 @@
       bar.setAttribute('stroke-width', '1.2');
       bar.setAttribute('stroke-linecap', 'round');
       g.appendChild(bar);
-      noServiceLayer.appendChild(g);
+      delayLayer.appendChild(g);
     }
-    setStatus(`No-service markers: ${stations[lo].id} → ${stations[hi].id}`, 'ok');
   }
 
   function clearNoServiceMarkers() {
@@ -739,6 +783,7 @@
     document.getElementById('noSvcStart').value = '';
     document.getElementById('noSvcEnd').value   = '';
     setStatus('No-service markers cleared.', 'ok');
+    refreshDelayMarkers();
   }
 
   // ── Location of Fault ────────────────────────────────
